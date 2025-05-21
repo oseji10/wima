@@ -431,7 +431,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                             <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.state}</p>
                                         )}
                                     </div>
-                                    <div>
+                                    {/* <div>
                                         <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                             LGA
                                         </label>
@@ -445,7 +445,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         {errors.lga && (
                                             <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.lga}</p>
                                         )}
-                                    </div>
+                                    </div> */}
                                     <div>
                                         <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                             Position
@@ -548,13 +548,13 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                     <p className="text-gray-900 dark:text-white text-sm sm:text-base" style={{ textTransform: 'uppercase' }}>{viewingOrg.mspName}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">State</p>
-                                    <p className="text-gray-900 dark:text-white text-sm sm:text-base">{viewingOrg.state.stateName}</p>
+                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Location</p>
+                                    <p className="text-gray-900 dark:text-white text-sm sm:text-base">{viewingOrg.communityName}, {viewingOrg.lga.lgaName} - {viewingOrg.state.stateName}</p>
                                 </div>
-                                <div>
+                                {/* <div>
                                     <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">LGA</p>
                                     <p className="text-gray-900 dark:text-white text-sm sm:text-base">{viewingOrg.lga.lgaName}</p>
-                                </div>
+                                </div> */}
                                 <div>
                                     <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Position</p>
                                     <p className="text-gray-900 dark:text-white text-sm sm:text-base">{viewingOrg.position.positionName}</p>
