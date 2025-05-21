@@ -13,6 +13,7 @@ interface Organization {
     membership_plan: { membershipPlanName: string } | null;
     services: string;
     mspId: string;
+    communityName: string;
 }
 
 interface MembershipPlan {
@@ -58,6 +59,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
         position: '',
         membership_plan: '',
         services: '',
+        communityName: ''
     });
 
     // Filter logic
@@ -252,11 +254,11 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         Name
                                     </th>
                                     <th className="px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                        State
+                                        Location
                                     </th>
-                                    <th className="px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
+                                    {/* <th className="px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         LGA
-                                    </th>
+                                    </th> */}
                                     <th className="px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
                                         Actions
                                     </th>
@@ -282,12 +284,12 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100" style={{ textTransform: 'uppercase' }}>
                                             <span className="font-medium sm:hidden">Name:</span> {org.mspName}
                                         </td>
-                                        <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100 sm:whitespace-nowrap">
-                                            <span className="font-medium sm:hidden">State:</span> {org.state.stateName}
+                                        <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100 sm:whitespace-nowrap" style={{ textTransform: 'uppercase' }}>
+                                            <span className="font-medium sm:hidden">State:</span>{org.communityName}, {org.lga.lgaName} - {org.state.stateName}
                                         </td>
-                                        <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100 sm:whitespace-nowrap">
+                                        {/* <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100 sm:whitespace-nowrap">
                                             <span className="font-medium sm:hidden">LGA:</span> {org.lga.lgaName}
-                                        </td>
+                                        </td> */}
                                         <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100 sm:whitespace-nowrap">
                                             <div className="flex space-x-2 sm:justify-start">
                                                 <span className="font-medium sm:hidden">Actions:</span>
