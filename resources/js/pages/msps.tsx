@@ -2,7 +2,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Organization {
     id: number;
@@ -59,8 +59,13 @@ export default function DBAs({ msps, memberships, position }: Props) {
         position: '',
         membership_plan: '',
         services: '',
-        communityName: ''
+        communityName: '',
     });
+
+    // Reset LGA filter when state changes
+    useEffect(() => {
+        setLgaFilter('');
+    }, [stateFilter]);
 
     // Filter logic
     const filteredMsps = msps.filter(org => 
@@ -84,7 +89,9 @@ export default function DBAs({ msps, memberships, position }: Props) {
 
     // Unique states and LGAs for filter dropdowns
     const states = Array.from(new Set(msps.map(org => org.state.stateName))).sort();
-    const lgas = Array.from(new Set(msps.map(org => org.lga.lgaName))).sort();
+    const lgas = stateFilter
+        ? Array.from(new Set(msps.filter(org => org.state.stateName.toLowerCase() === stateFilter.toLowerCase()).map(org => org.lga.lgaName))).sort()
+        : Array.from(new Set(msps.map(org => org.lga.lgaName))).sort();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -116,6 +123,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
             position: org.position.positionName,
             membership_plan: org.membership_plan?.membershipPlanName || '',
             services: org.services,
+            communityName: org.communityName,
         });
         setIsModalOpen(true);
     };
@@ -240,59 +248,33 @@ export default function DBAs({ msps, memberships, position }: Props) {
                 </div>
 
                 <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
-                    <div className="overflow-x-auto">
-                        <table className="w-full border-collapse">
-                            <thead className="bg-gray-50 dark:bg-gray-800 hidden sm:table-header-group">
-                                <tr>
-                                    <th className="px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                        Image
-                                    </th>
-                                    <th className="px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                        MSP ID
-                                    </th>
-                                    <th className="px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                        Name
-                                    </th>
-                                    <th className="px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                        Location
-                                    </th>
-                                    {/* <th className="px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                        LGA
-                                    </th> */}
-                                    <th className="px-4 py-2 sm:px-6 sm:py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                                {paginatedMsps.map((org) => (
-                                    <tr 
-                                        key={org.id}
-                                        className="block sm:table-row bg-white dark:bg-gray-900 sm:bg-transparent sm:dark:bg-transparent hover:bg-gray-50 dark:hover:bg-gray-800 mb-4 sm:mb-0 border-b sm:border-0"
-                                    >
-                                        <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100 sm:whitespace-nowrap">
-                                            <div className="flex items-center sm:block">
-                                                <span className="font-medium sm:hidden mr-2">Image:</span>
-                                                <svg className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                                                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                                </svg>
-                                            </div>
-                                        </td>
-                                        <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100 sm:whitespace-nowrap">
-                                            <span className="font-medium sm:hidden">MSP ID:</span> {org.mspId}
-                                        </td>
-                                        <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100" style={{ textTransform: 'uppercase' }}>
-                                            <span className="font-medium sm:hidden">Name:</span> {org.mspName}
-                                        </td>
-                                        <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100 sm:whitespace-nowrap" style={{ textTransform: 'uppercase' }}>
-                                            <span className="font-medium sm:hidden">State:</span>{org.communityName}, {org.lga.lgaName} - {org.state.stateName}
-                                        </td>
-                                        {/* <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100 sm:whitespace-nowrap">
-                                            <span className="font-medium sm:hidden">LGA:</span> {org.lga.lgaName}
-                                        </td> */}
-                                        <td className="block sm:table-cell px-4 py-2 text-sm text-gray-900 dark:text-gray-100 sm:whitespace-nowrap">
-                                            <div className="flex space-x-2 sm:justify-start">
-                                                <span className="font-medium sm:hidden">Actions:</span>
+                    <div className="p-4 sm:p-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {paginatedMsps.map((org) => (
+                                <div
+                                    key={org.id}
+                                    className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-150"
+                                >
+                                    <div className="flex flex-col gap-3">
+                                        <div className="flex justify-center">
+                                            <svg className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">MSP ID</p>
+                                            <p className="text-sm sm:text-base text-gray-900 dark:text-white truncate">{org.mspId}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Name</p>
+                                            <p className="text-sm sm:text-base text-gray-900 dark:text-white truncate" style={{ textTransform: 'uppercase' }}>{org.mspName}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Location</p>
+                                            <p className="text-sm sm:text-base text-gray-900 dark:text-white truncate" style={{ textTransform: 'uppercase' }}>{org.communityName}, {org.lga.lgaName} - {org.state.stateName}</p>
+                                        </div>
+                                        <div className="flex justify-end mt-2">
+                                            <div className="flex gap-2">
                                                 <button
                                                     onClick={() => handleView(org)}
                                                     className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
@@ -317,16 +299,16 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                                     className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                                                     title="Delete"
                                                 >
-                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24  beaux-24" xmlns="http://www.w3.org/2000/svg">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4M4 7h16" />
                                                     </svg>
                                                 </button> */}
                                             </div>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Pagination Controls */}
@@ -431,7 +413,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                             <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.state}</p>
                                         )}
                                     </div>
-                                    {/* <div>
+                                    <div>
                                         <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                             LGA
                                         </label>
@@ -445,7 +427,22 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         {errors.lga && (
                                             <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.lga}</p>
                                         )}
-                                    </div> */}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Community Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={data.communityName}
+                                            onChange={(e) => setData('communityName', e.target.value)}
+                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            placeholder="Enter community name"
+                                        />
+                                        {errors.communityName && (
+                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.communityName}</p>
+                                        )}
+                                    </div>
                                     <div>
                                         <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                             Position
@@ -541,31 +538,27 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                 </div>
                                 <div>
                                     <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">MSP ID</p>
-                                    <p className="text-gray-900 dark:text-white text-sm sm:text-base">{viewingOrg.mspId}</p>
+                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.mspId}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Name</p>
-                                    <p className="text-gray-900 dark:text-white text-sm sm:text-base" style={{ textTransform: 'uppercase' }}>{viewingOrg.mspName}</p>
+                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white" style={{ textTransform: 'uppercase' }}>{viewingOrg.mspName}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Location</p>
-                                    <p className="text-gray-900 dark:text-white text-sm sm:text-base">{viewingOrg.communityName}, {viewingOrg.lga.lgaName} - {viewingOrg.state.stateName}</p>
+                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.communityName}, {viewingOrg.lga.lgaName} - {viewingOrg.state.stateName}</p>
                                 </div>
-                                {/* <div>
-                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">LGA</p>
-                                    <p className="text-gray-900 dark:text-white text-sm sm:text-base">{viewingOrg.lga.lgaName}</p>
-                                </div> */}
                                 <div>
                                     <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Position</p>
-                                    <p className="text-gray-900 dark:text-white text-sm sm:text-base">{viewingOrg.position.positionName}</p>
+                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.position.positionName}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Membership Plan</p>
-                                    <p className="text-gray-900 dark:text-white text-sm sm:text-base">{viewingOrg.membership_plan ? `${viewingOrg.membership_plan.membershipPlanName} MEMBERSHIP` : 'None'}</p>
+                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.membership_plan ? `${viewingOrg.membership_plan.membershipPlanName} MEMBERSHIP` : 'None'}</p>
                                 </div>
                                 <div>
                                     <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Services</p>
-                                    <p className="text-gray-900 dark:text-white text-sm sm:text-base">{viewingOrg.services}</p>
+                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.services}</p>
                                 </div>
                             </div>
                             <div className="mt-4 sm:mt-6 flex justify-end">
