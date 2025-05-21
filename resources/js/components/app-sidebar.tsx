@@ -8,11 +8,11 @@ import { ArrowDownNarrowWide, ArrowLeftRightIcon, BookOpen, ChartCandlestick, Fo
 import AppLogo from './app-logo';
 
 const mainNavItems: NavItem[] = [
-    {
-        title: 'Dashboard',
-        href: '/dashboard',
-        icon: LayoutGrid,
-    },
+    // {
+    //     title: 'Dashboard',
+    //     href: '/dashboard',
+    //     icon: LayoutGrid,
+    // },
     {
         title: 'MSPs',
         href: '/msps',
