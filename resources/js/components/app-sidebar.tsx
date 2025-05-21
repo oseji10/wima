@@ -18,6 +18,11 @@ const mainNavItems: NavItem[] = [
         href: '/msps',
         icon: NetworkIcon,
     },
+    {
+        title: 'Members',
+        href: '/members',
+        icon: Users2,
+    },
     // {
     //     title: 'Staff',
     //     href: '/staff',

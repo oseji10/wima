@@ -68,6 +68,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 Route::get('/msps', [MSPController::class, 'index'])->name('msps.index');
+Route::get('/members', [MSPController::class, 'members'])->name('members.index');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

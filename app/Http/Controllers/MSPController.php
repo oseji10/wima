@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\MSPs;
 use App\Models\MembershipPlan;
 use App\Models\Position;
+use App\Models\Members;
 use Inertia\Inertia;
 class MSPController extends Controller
 {
@@ -26,6 +27,20 @@ class MSPController extends Controller
         $msps = MSPs::with(['state', 'lga', 'position', 'membership_plan'])->get()->toArray();
         // return $msps;
         return Inertia::render('msps', [
+            'msps' => $msps,
+            'memberships' => $memberships,
+            'position' => $position,
+        ]);
+    }
+
+    public function members()
+    {
+        
+        $memberships = MembershipPlan::all();
+        $position = Position::all();
+        $msps = Members::with(['state', 'lga'])->get()->toArray();
+        // return $msps;
+        return Inertia::render('members', [
             'msps' => $msps,
             'memberships' => $memberships,
             'position' => $position,
