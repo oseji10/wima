@@ -241,7 +241,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                         </div>
                         <div className="w-full sm:w-48">
                             <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Filter by Position
+                                Filter by Specialization
                             </label>
                             <select
                                 value={positionFilter}
@@ -251,7 +251,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                 }}
                                 className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
                             >
-                                <option value="">All Positions</option>
+                                <option value="">All Specializations</option>
                                 {position.map(pos => (
                                     <option key={pos.positionId} value={pos.positionName}>{pos.positionName}</option>
                                 ))}
