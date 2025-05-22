@@ -41,6 +41,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function Members({ msps, memberships, position }: Props) {
+   
+        const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
