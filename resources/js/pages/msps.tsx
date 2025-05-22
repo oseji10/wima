@@ -550,7 +550,8 @@ export default function DBAs({ msps, memberships, position }: Props) {
                 )}
 
                 {isRequestModalOpen && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 pointer-events-none">
+                    // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 pointer-events-none">
+                        <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-2 sm:p-4">
                         <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-md max-h-[80vh] overflow-y-auto pointer-events-auto">
                             <div className="flex justify-between items-center mb-4 sm:mb-6">
                                 <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
@@ -713,7 +714,8 @@ export default function DBAs({ msps, memberships, position }: Props) {
                 )}
 
                 {isViewModalOpen && viewingOrg && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 pointer-events-none">
+                    // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 pointer-events-none">
+                        <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-2 sm:p-4">
                         <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-full sm:max-w-md max-h-[80vh] overflow-y-auto pointer-events-auto">
                             <div className="flex justify-between items-center mb-4 sm:mb-6">
                                 <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
