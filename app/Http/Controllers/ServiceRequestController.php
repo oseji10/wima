@@ -12,11 +12,13 @@ class ServiceRequestController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
+            'email' => 'nullable|email|max:255',
             'phone_number' => 'required|string|max:20',
             'state' => 'required|string|max:255',
             'lga' => 'required|string|max:255',
-            'service' => 'required|string|max:255',
+            // 'service' => 'required|string|max:255',
+            'service' => ['required', 'array'],
+'service.*' => ['in:Solar Treshers,Solar Dryers,Solar Knapsack Sprayers,Solar Water Pumps'],
         ]);
 
         $adminEmails = [

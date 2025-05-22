@@ -53,6 +53,38 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const [requestState, setRequestState] = useState('');
     const itemsPerPage = 12;
 
+
+    useEffect(() => {
+        const sendHeight = () => {
+            // Calculate the full content height, including modals
+            const height = Math.max(
+                document.body.scrollHeight,
+                document.body.offsetHeight,
+                document.documentElement.clientHeight,
+                document.documentElement.scrollHeight,
+                document.documentElement.offsetHeight
+            );
+            // Send height to parent window
+            window.parent.postMessage({ height }, 'https://wimanigeria.com');
+        };
+
+        // Send height initially
+        sendHeight();
+
+        // Update height on resize
+        window.addEventListener('resize', sendHeight);
+
+        // Watch for DOM changes (e.g., modals opening/closing)
+        const observer = new MutationObserver(sendHeight);
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // Cleanup
+        return () => {
+            window.removeEventListener('resize', sendHeight);
+            observer.disconnect();
+        };
+    }, [isModalOpen, isViewModalOpen, isRequestModalOpen]); // Re-run when modals open/close
+    
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         mspId: '',
         mspName: '',
@@ -70,7 +102,8 @@ export default function DBAs({ msps, memberships, position }: Props) {
         phone_number: '',
         state: '',
         lga: '',
-        service: '',
+        // service: '',
+        service: [] as string[],
     });
 
     // Reset LGA filter when state changes
@@ -654,7 +687,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                             <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.lga}</p>
                                         )}
                                     </div>
-                                    <div>
+                                    {/* <div>
                                         <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                             Service Requested
                                         </label>
@@ -671,7 +704,40 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         {requestErrors.service && (
                                             <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.service}</p>
                                         )}
-                                    </div>
+                                    </div> */}
+
+<div>
+    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+        Services Requested (Select one or more)
+    </label>
+    <div className="space-y-2">
+        {servicesList.map(service => (
+            <div key={service} className="flex items-center">
+                <input
+                    type="checkbox"
+                    id={service}
+                    value={service}
+                    checked={requestData.service.includes(service)}
+                    onChange={(e) => {
+                        const currentServices = requestData.service ? requestData.service.split(',') : [];
+                        if (e.target.checked) {
+                            setRequestData('service', [...currentServices, service].join(','));
+                        } else {
+                            setRequestData('service', currentServices.filter(s => s !== service).join(','));
+                        }
+                    }}
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
+                />
+                <label htmlFor={service} className="ml-2 text-sm text-gray-900 dark:text-white">
+                    {service}
+                </label>
+            </div>
+        ))}
+    </div>
+    {requestErrors.service && (
+        <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.service}</p>
+    )}
+</div>
                                 </div>
 
                                 <div className="mt-4 sm:mt-6 flex justify-end gap-2 sm:gap-3">
