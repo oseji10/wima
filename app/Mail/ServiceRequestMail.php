@@ -13,6 +13,14 @@ class ServiceRequestMail extends Mailable
 
     public function __construct($data)
     {
+        // $this->data = $data;
+        // Convert service array to comma-separated string
+        $data['service'] = is_array($data['service'])
+            ? implode(', ', array_map(function ($service) {
+                return htmlspecialchars($service, ENT_QUOTES, 'UTF-8');
+            }, $data['service']))
+            : htmlspecialchars($data['service'] ?? '', ENT_QUOTES, 'UTF-8');
+
         $this->data = $data;
     }
 

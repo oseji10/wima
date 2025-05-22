@@ -18,15 +18,15 @@ class ServiceRequestController extends Controller
             'lga' => 'required|string|max:255',
             // 'service' => 'required|string|max:255',
             'service' => ['required', 'array'],
-'service.*' => ['in:Solar Treshers,Solar Dryers,Solar Knapsack Sprayers,Solar Water Pumps'],
+            'service.*' => 'string|max:255',
         ]);
 
         $adminEmails = [
             'vctroseji@gmail.com',
-            'f.nasiru@wimanigeria.com',
-            'a.bunkure@wimanigeria.com',
-            'a.leonard@wimanigeria.com',
-            'u.umar@wimanigeria.com', 
+            // 'f.nasiru@wimanigeria.com',
+            // 'a.bunkure@wimanigeria.com',
+            // 'a.leonard@wimanigeria.com',
+            // 'u.umar@wimanigeria.com', 
         ];
 
         // Send email to each admin

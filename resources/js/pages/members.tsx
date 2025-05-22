@@ -52,6 +52,39 @@ export default function Members({ msps, memberships, position }: Props) {
     const [membershipFilter, setMembershipFilter] = useState('');
     const itemsPerPage = 12;
 
+
+ useEffect(() => {
+        const sendHeight = () => {
+            // Calculate the full content height, including modals
+            const height = Math.max(
+                document.body.scrollHeight,
+                document.body.offsetHeight,
+                document.documentElement.clientHeight,
+                document.documentElement.scrollHeight,
+                document.documentElement.offsetHeight
+            );
+            // Send height to parent window
+            window.parent.postMessage({ height }, 'https://wimanigeria.com');
+        };
+
+        // Send height initially
+        sendHeight();
+
+        // Update height on resize
+        window.addEventListener('resize', sendHeight);
+
+        // Watch for DOM changes (e.g., modals opening/closing)
+        const observer = new MutationObserver(sendHeight);
+        observer.observe(document.body, { childList: true, subtree: true });
+
+        // Cleanup
+        return () => {
+            window.removeEventListener('resize', sendHeight);
+            observer.disconnect();
+        };
+    }, [isModalOpen, isViewModalOpen, isRequestModalOpen]); // Re-run when modals open/close
+
+
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         membershipId: '',
         memberName: '',

@@ -1,4 +1,3 @@
-
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
@@ -53,10 +52,8 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const [requestState, setRequestState] = useState('');
     const itemsPerPage = 12;
 
-
     useEffect(() => {
         const sendHeight = () => {
-            // Calculate the full content height, including modals
             const height = Math.max(
                 document.body.scrollHeight,
                 document.body.offsetHeight,
@@ -64,27 +61,20 @@ export default function DBAs({ msps, memberships, position }: Props) {
                 document.documentElement.scrollHeight,
                 document.documentElement.offsetHeight
             );
-            // Send height to parent window
             window.parent.postMessage({ height }, 'https://wimanigeria.com');
         };
 
-        // Send height initially
         sendHeight();
-
-        // Update height on resize
         window.addEventListener('resize', sendHeight);
-
-        // Watch for DOM changes (e.g., modals opening/closing)
         const observer = new MutationObserver(sendHeight);
         observer.observe(document.body, { childList: true, subtree: true });
 
-        // Cleanup
         return () => {
             window.removeEventListener('resize', sendHeight);
             observer.disconnect();
         };
-    }, [isModalOpen, isViewModalOpen, isRequestModalOpen]); // Re-run when modals open/close
-    
+    }, [isModalOpen, isViewModalOpen, isRequestModalOpen]);
+
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         mspId: '',
         mspName: '',
@@ -102,21 +92,17 @@ export default function DBAs({ msps, memberships, position }: Props) {
         phone_number: '',
         state: '',
         lga: '',
-        // service: '',
         service: [] as string[],
     });
 
-    // Reset LGA filter when state changes
     useEffect(() => {
         setLgaFilter('');
     }, [stateFilter]);
 
-    // Reset request LGA when request state changes
     useEffect(() => {
         setRequestData('lga', '');
     }, [requestState, setRequestData]);
 
-    // Filter logic
     const filteredMsps = msps.filter(org => 
         (stateFilter === '' || org.state.stateName.toLowerCase() === stateFilter.toLowerCase()) &&
         (lgaFilter === '' || org.lga.lgaName.toLowerCase() === lgaFilter.toLowerCase()) &&
@@ -124,19 +110,16 @@ export default function DBAs({ msps, memberships, position }: Props) {
         (membershipFilter === '' || org.membership_plan?.membershipPlanName.toLowerCase() === membershipFilter.toLowerCase())
     );
 
-    // Pagination logic
     const totalPages = Math.ceil(filteredMsps.length / itemsPerPage);
     const paginatedMsps = filteredMsps.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
 
-    // Record count logic
     const startRecord = (currentPage - 1) * itemsPerPage + 1;
     const endRecord = Math.min(currentPage * itemsPerPage, filteredMsps.length);
     const totalRecords = filteredMsps.length;
 
-    // Unique states, LGAs, and services for dropdowns
     const states = Array.from(new Set(msps.map(org => org.state.stateName))).sort();
     const lgas = stateFilter
         ? Array.from(new Set(msps.filter(org => org.state.stateName.toLowerCase() === stateFilter.toLowerCase()).map(org => org.lga.lgaName))).sort()
@@ -145,8 +128,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
         ? Array.from(new Set(msps.filter(org => org.state.stateName.toLowerCase() === requestState.toLowerCase()).map(org => org.lga.lgaName))).sort()
         : Array.from(new Set(msps.map(org => org.lga.lgaName))).sort();
     
-        const servicesList = ['Solar Treshers', 'Solar Dryers', 'Solar Knapsack Sprayers', 'Solar Water Pumps'];
-
+    const servicesList = ['Solar Treshers', 'Solar Dryers', 'Solar Knapsack Sprayers', 'Solar Water Pumps'];
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -171,6 +153,11 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const handleRequestSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         postRequest('/request-service', {
+            data: {
+                ...requestData,
+                // service: requestData.service, 
+                service: requestData.service.join(','), // Send as comma-separated string
+            },
             onSuccess: () => {
                 setIsRequestModalOpen(false);
                 resetRequest();
@@ -212,7 +199,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
         }
     };
 
-    // Limited page buttons for mobile
     const getVisiblePages = () => {
         const pages = [];
         const start = Math.max(1, currentPage - 1);
@@ -227,15 +213,19 @@ export default function DBAs({ msps, memberships, position }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Hubs" />
             <div className="flex h-full flex-1 flex-col gap-2 p-2 sm:gap-4 sm:p-4">
-                <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
-                    <button
-                        onClick={() => setIsRequestModalOpen(true)}
-                        className="px-3 py-1 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm sm:text-base"
-                    >
-                        Request Service
-                    </button>
-                    <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-                        <h3>Our hubs provide mechanized services using Solar Treshers, Solar Dryers, Solar Knapsack Sprayers and Solar water pumps</h3>
+                <div className="mb-4 flex flex-col gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                        <button
+                            onClick={() => setIsRequestModalOpen(true)}
+                            className="px-3 py-1 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm sm:text-base"
+                        >
+                            Request Service
+                        </button>
+                        <h3 className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
+                            Our hubs provide mechanized services using Solar Treshers, Solar Dryers, Solar Knapsack Sprayers and Solar water pumps
+                        </h3>
+                    </div>
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:flex-wrap">
                         <div className="w-full sm:w-48">
                             <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Filter by State
@@ -349,24 +339,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                     </svg>
                                                 </button>
-                                                {/* <button
-                                                    onClick={() => handleEdit(org)}
-                                                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
-                                                    title="Edit"
-                                                >
-                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                    </svg>
-                                                </button> */}
-                                                {/* <button
-                                                    onClick={() => handleDelete(org.id)}
-                                                    className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-                                                    title="Delete"
-                                                >
-                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4M4 7h16" />
-                                                    </svg>
-                                                </button> */}
                                             </div>
                                         </div>
                                     </div>
@@ -375,7 +347,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
                         </div>
                     </div>
 
-                    {/* Pagination Controls */}
                     <div className="flex flex-col sm:flex-row sm:justify-between items-center mt-4 px-4 py-2 sm:px-6 sm:py-3 gap-2">
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
@@ -410,10 +381,9 @@ export default function DBAs({ msps, memberships, position }: Props) {
                     </div>
                 </div>
 
-                {/* Edit Modal */}
                 {isModalOpen && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-md max-h-[80vh] overflow-y-auto">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 pointer-events-none">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-md max-h-[80vh] overflow-y-auto pointer-events-auto">
                             <div className="flex justify-between items-center mb-4 sm:mb-6">
                                 <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
                                     {editingOrg ? 'Edit MSP' : 'Add New MSP'}
@@ -579,12 +549,9 @@ export default function DBAs({ msps, memberships, position }: Props) {
                     </div>
                 )}
 
-                {/* Request Service Modal */}
                 {isRequestModalOpen && (
-                    // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
-                                            <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-2 sm:p-4">
-
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-md max-h-[80vh] overflow-y-auto">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 pointer-events-none">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-md max-h-[80vh] overflow-y-auto pointer-events-auto">
                             <div className="flex justify-between items-center mb-4 sm:mb-6">
                                 <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
                                     Request Service
@@ -687,57 +654,37 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                             <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.lga}</p>
                                         )}
                                     </div>
-                                    {/* <div>
+                                    <div>
                                         <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Service Requested
+                                            Services Requested (Select one or more)
                                         </label>
-                                        <select
-                                            value={requestData.service}
-                                            onChange={(e) => setRequestData('service', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
-                                        >
-                                            <option value="">Select Service</option>
+                                        <div className="space-y-2">
                                             {servicesList.map(service => (
-                                                <option key={service} value={service}>{service}</option>
+                                                <div key={service} className="flex items-center">
+                                                    <input
+                                                        type="checkbox"
+                                                        id={service}
+                                                        value={service}
+                                                        checked={requestData.service.includes(service)}
+                                                        onChange={(e) => {
+                                                            console.log(`Checkbox ${service} clicked, checked: ${e.target.checked}`);
+                                                            const updatedServices = e.target.checked
+                                                                ? [...requestData.service, service]
+                                                                : requestData.service.filter(s => s !== service);
+                                                            setRequestData('service', updatedServices);
+                                                        }}
+                                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
+                                                    />
+                                                    <label htmlFor={service} className="ml-2 text-sm text-gray-900 dark:text-white">
+                                                        {service}
+                                                    </label>
+                                                </div>
                                             ))}
-                                        </select>
+                                        </div>
                                         {requestErrors.service && (
                                             <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.service}</p>
                                         )}
-                                    </div> */}
-
-<div>
-    <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-        Services Requested (Select one or more)
-    </label>
-    <div className="space-y-2">
-        {servicesList.map(service => (
-            <div key={service} className="flex items-center">
-                <input
-                    type="checkbox"
-                    id={service}
-                    value={service}
-                    checked={requestData.service.includes(service)}
-                    onChange={(e) => {
-                        const currentServices = requestData.service ? requestData.service.split(',') : [];
-                        if (e.target.checked) {
-                            setRequestData('service', [...currentServices, service].join(','));
-                        } else {
-                            setRequestData('service', currentServices.filter(s => s !== service).join(','));
-                        }
-                    }}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
-                />
-                <label htmlFor={service} className="ml-2 text-sm text-gray-900 dark:text-white">
-                    {service}
-                </label>
-            </div>
-        ))}
-    </div>
-    {requestErrors.service && (
-        <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.service}</p>
-    )}
-</div>
+                                    </div>
                                 </div>
 
                                 <div className="mt-4 sm:mt-6 flex justify-end gap-2 sm:gap-3">
@@ -765,10 +712,9 @@ export default function DBAs({ msps, memberships, position }: Props) {
                     </div>
                 )}
 
-                {/* View Modal */}
                 {isViewModalOpen && viewingOrg && (
-                    <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-2 sm:p-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-full sm:max-w-md max-h-[80vh] overflow-y-auto">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 pointer-events-none">
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-full sm:max-w-md max-h-[80vh] overflow-y-auto pointer-events-auto">
                             <div className="flex justify-between items-center mb-4 sm:mb-6">
                                 <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
                                     MSP Details
@@ -802,14 +748,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                     <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Specialization</p>
                                     <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.position.positionName}</p>
                                 </div>
-                                {/* <div>
-                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Membership Plan</p>
-                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.membership_plan ? `${viewingOrg.membership_plan.membershipPlanName} MEMBERSHIP` : 'None'}</p>
-                                </div> */}
-                                {/* <div>
-                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Services</p>
-                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.services}</p>
-                                </div> */}
                             </div>
                             <div className="mt-4 sm:mt-6 flex justify-end">
                                 <button

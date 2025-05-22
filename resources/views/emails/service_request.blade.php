@@ -12,7 +12,8 @@
     <p><strong>Phone Number:</strong> {{ $phone_number }}</p>
     <p><strong>State:</strong> {{ $state }}</p>
     <p><strong>LGA:</strong> {{ $lga }}</p>
-    <p><strong>Service Requested:</strong> {{ $service }}</p>
+    <p><strong>Services Requested:</strong> {{ is_array($service) ? implode(', ', $service) : e($service ?? '') }}</p>
+    <!-- <p><strong>Service Requested:</strong> {{ $service }}</p> -->
     <p>Please review and assign the request accordingly.</p>
 </body>
 </html>
