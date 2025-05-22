@@ -23,10 +23,10 @@ class ServiceRequestController extends Controller
 
         $adminEmails = [
             'vctroseji@gmail.com',
-            // 'f.nasiru@wimanigeria.com',
-            // 'a.bunkure@wimanigeria.com',
-            // 'a.leonard@wimanigeria.com',
-            // 'u.umar@wimanigeria.com', 
+            'f.nasiru@wimanigeria.com',
+            'a.bunkure@wimanigeria.com',
+            'a.leonard@wimanigeria.com',
+            'u.umar@wimanigeria.com', 
         ];
 
         // Send email to each admin
