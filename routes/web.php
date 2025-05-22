@@ -7,6 +7,7 @@ use App\Http\Controllers\CadreController;
 use App\Http\Controllers\PFAController;
 use App\Http\Controllers\HISController;
 use App\Http\Controllers\StaffController;
+use App\Http\Controllers\ServiceRequestController;
 
 use App\Http\Controllers\TransfersController;
 Route::get('/', function () {
@@ -67,8 +68,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
-Route::get('/msps', [MSPController::class, 'index'])->name('msps.index');
+Route::get('/hubs', [MSPController::class, 'index'])->name('msps.index');
 Route::get('/members', [MSPController::class, 'members'])->name('members.index');
+Route::post('/request-service', [ServiceRequestController::class, 'store'])->name('request-service.store');
 
 require __DIR__.'/settings.php';
 require __DIR__.'/auth.php';

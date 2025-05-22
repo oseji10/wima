@@ -18,14 +18,14 @@ class Members extends Model
     {
         return $this->belongsTo(Lga::class, 'lga', 'lgaId');
     }
-    // public function position()
-    // {
-    //     return $this->belongsTo(Position::class, 'position', 'positionId');
-    // }
-    // public function membership_plan()
-    // {
-    //     return $this->belongsTo(MembershipPlan::class, 'membership', 'membershipPlanId');
-    // }
+    public function position()
+    {
+        return $this->belongsTo(Position::class, 'position', 'positionId');
+    }
+    public function membership_plan()
+    {
+        return $this->belongsTo(MembershipPlan::class, 'membership', 'membershipPlanId');
+    }
 
    
 }

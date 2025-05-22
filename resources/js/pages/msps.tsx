@@ -34,7 +34,7 @@ interface Props {
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Mechanized Service Providers',
+        title: 'Hubs',
         href: '/dashboard',
     },
 ];
@@ -42,6 +42,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 export default function DBAs({ msps, memberships, position }: Props) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
     const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
     const [viewingOrg, setViewingOrg] = useState<Organization | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -49,7 +50,8 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const [lgaFilter, setLgaFilter] = useState('');
     const [positionFilter, setPositionFilter] = useState('');
     const [membershipFilter, setMembershipFilter] = useState('');
-    const itemsPerPage = 10;
+    const [requestState, setRequestState] = useState('');
+    const itemsPerPage = 12;
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         mspId: '',
@@ -62,10 +64,24 @@ export default function DBAs({ msps, memberships, position }: Props) {
         communityName: '',
     });
 
+    const { data: requestData, setData: setRequestData, post: postRequest, processing: requestProcessing, errors: requestErrors, reset: resetRequest } = useForm({
+        name: '',
+        email: '',
+        phone_number: '',
+        state: '',
+        lga: '',
+        service: '',
+    });
+
     // Reset LGA filter when state changes
     useEffect(() => {
         setLgaFilter('');
     }, [stateFilter]);
+
+    // Reset request LGA when request state changes
+    useEffect(() => {
+        setRequestData('lga', '');
+    }, [requestState, setRequestData]);
 
     // Filter logic
     const filteredMsps = msps.filter(org => 
@@ -87,11 +103,17 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const endRecord = Math.min(currentPage * itemsPerPage, filteredMsps.length);
     const totalRecords = filteredMsps.length;
 
-    // Unique states and LGAs for filter dropdowns
+    // Unique states, LGAs, and services for dropdowns
     const states = Array.from(new Set(msps.map(org => org.state.stateName))).sort();
     const lgas = stateFilter
         ? Array.from(new Set(msps.filter(org => org.state.stateName.toLowerCase() === stateFilter.toLowerCase()).map(org => org.lga.lgaName))).sort()
         : Array.from(new Set(msps.map(org => org.lga.lgaName))).sort();
+    const requestLgas = requestState
+        ? Array.from(new Set(msps.filter(org => org.state.stateName.toLowerCase() === requestState.toLowerCase()).map(org => org.lga.lgaName))).sort()
+        : Array.from(new Set(msps.map(org => org.lga.lgaName))).sort();
+    
+        const servicesList = ['Solar Treshers', 'Solar Dryers', 'Solar Knapsack Sprayers', 'Solar Water Pumps'];
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -111,6 +133,18 @@ export default function DBAs({ msps, memberships, position }: Props) {
                 }
             });
         }
+    };
+
+    const handleRequestSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        postRequest('/request-service', {
+            onSuccess: () => {
+                setIsRequestModalOpen(false);
+                resetRequest();
+                setRequestState('');
+                alert('Service request submitted successfully!');
+            }
+        });
     };
 
     const handleEdit = (org: Organization) => {
@@ -158,20 +192,17 @@ export default function DBAs({ msps, memberships, position }: Props) {
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
-            <Head title="Mechanized Service Providers" />
+            <Head title="Hubs" />
             <div className="flex h-full flex-1 flex-col gap-2 p-2 sm:gap-4 sm:p-4">
-                <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-                    {/* <button
-                        onClick={() => {
-                            setEditingOrg(null);
-                            reset();
-                            setIsModalOpen(true);
-                        }}
+                <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+                    <button
+                        onClick={() => setIsRequestModalOpen(true)}
                         className="px-3 py-1 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm sm:text-base"
                     >
-                        Add DBA
-                    </button> */}
+                        Request Service
+                    </button>
                     <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+                        <h3>Our hubs provide mechanized services using Solar Treshers, Solar Dryers, Solar Knapsack Sprayers and Solar water pumps</h3>
                         <div className="w-full sm:w-48">
                             <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                                 Filter by State
@@ -299,7 +330,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                                     className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                                                     title="Delete"
                                                 >
-                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24  beaux-24" xmlns="http://www.w3.org/2000/svg">
+                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5-4h4M4 7h16" />
                                                     </svg>
                                                 </button> */}
@@ -445,7 +476,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                     </div>
                                     <div>
                                         <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                            Position
+                                            Specialization
                                         </label>
                                         <input
                                             type="text"
@@ -515,6 +546,159 @@ export default function DBAs({ msps, memberships, position }: Props) {
                     </div>
                 )}
 
+                {/* Request Service Modal */}
+                {isRequestModalOpen && (
+                    // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+                                            <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-2 sm:p-4">
+
+                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-md max-h-[80vh] overflow-y-auto">
+                            <div className="flex justify-between items-center mb-4 sm:mb-6">
+                                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                                    Request Service
+                                </h2>
+                                <button
+                                    onClick={() => {
+                                        setIsRequestModalOpen(false);
+                                        resetRequest();
+                                        setRequestState('');
+                                    }}
+                                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none text-sm sm:text-base"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            <form onSubmit={handleRequestSubmit}>
+                                <div className="space-y-4 sm:space-y-6">
+                                    <div>
+                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={requestData.name}
+                                            onChange={(e) => setRequestData('name', e.target.value)}
+                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            placeholder="Enter your name"
+                                        />
+                                        {requestErrors.name && (
+                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.name}</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Email
+                                        </label>
+                                        <input
+                                            type="email"
+                                            value={requestData.email}
+                                            onChange={(e) => setRequestData('email', e.target.value)}
+                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            placeholder="Enter your email"
+                                        />
+                                        {requestErrors.email && (
+                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.email}</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Phone Number
+                                        </label>
+                                        <input
+                                            type="tel"
+                                            value={requestData.phone_number}
+                                            onChange={(e) => setRequestData('phone_number', e.target.value)}
+                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            placeholder="Enter your phone number"
+                                        />
+                                        {requestErrors.phone_number && (
+                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.phone_number}</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            State
+                                        </label>
+                                        <select
+                                            value={requestData.state}
+                                            onChange={(e) => {
+                                                setRequestData('state', e.target.value);
+                                                setRequestState(e.target.value);
+                                            }}
+                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                                        >
+                                            <option value="">Select State</option>
+                                            {states.map(state => (
+                                                <option key={state} value={state}>{state}</option>
+                                            ))}
+                                        </select>
+                                        {requestErrors.state && (
+                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.state}</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            LGA
+                                        </label>
+                                        <select
+                                            value={requestData.lga}
+                                            onChange={(e) => setRequestData('lga', e.target.value)}
+                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                                        >
+                                            <option value="">Select LGA</option>
+                                            {requestLgas.map(lga => (
+                                                <option key={lga} value={lga}>{lga}</option>
+                                            ))}
+                                        </select>
+                                        {requestErrors.lga && (
+                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.lga}</p>
+                                        )}
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                            Service Requested
+                                        </label>
+                                        <select
+                                            value={requestData.service}
+                                            onChange={(e) => setRequestData('service', e.target.value)}
+                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                                        >
+                                            <option value="">Select Service</option>
+                                            {servicesList.map(service => (
+                                                <option key={service} value={service}>{service}</option>
+                                            ))}
+                                        </select>
+                                        {requestErrors.service && (
+                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.service}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="mt-4 sm:mt-6 flex justify-end gap-2 sm:gap-3">
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setIsRequestModalOpen(false);
+                                            resetRequest();
+                                            setRequestState('');
+                                        }}
+                                        className="px-3 py-1 sm:px-4 sm:py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={requestProcessing}
+                                        className="px-3 py-1 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition duration-150 ease-in-out text-sm sm:text-base"
+                                    >
+                                        {requestProcessing ? 'Submitting...' : 'Submit'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
                 {/* View Modal */}
                 {isViewModalOpen && viewingOrg && (
                     <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-2 sm:p-4">
@@ -549,17 +733,17 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                     <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.communityName}, {viewingOrg.lga.lgaName} - {viewingOrg.state.stateName}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Position</p>
+                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Specialization</p>
                                     <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.position.positionName}</p>
                                 </div>
-                                <div>
+                                {/* <div>
                                     <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Membership Plan</p>
                                     <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.membership_plan ? `${viewingOrg.membership_plan.membershipPlanName} MEMBERSHIP` : 'None'}</p>
-                                </div>
-                                <div>
+                                </div> */}
+                                {/* <div>
                                     <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Services</p>
                                     <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.services}</p>
-                                </div>
+                                </div> */}
                             </div>
                             <div className="mt-4 sm:mt-6 flex justify-end">
                                 <button

@@ -38,7 +38,7 @@ class MSPController extends Controller
         
         $memberships = MembershipPlan::all();
         $position = Position::all();
-        $msps = Members::with(['state', 'lga'])->get()->toArray();
+        $msps = Members::with(['state', 'lga', 'position', 'membership_plan'])->get()->toArray();
         // return $msps;
         return Inertia::render('members', [
             'msps' => $msps,

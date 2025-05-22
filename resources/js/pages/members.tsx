@@ -550,7 +550,7 @@ export default function Members({ msps, memberships, position }: Props) {
                                     <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.communityName}, {viewingOrg.lga.lgaName} - {viewingOrg.state.stateName}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Position</p>
+                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Specialization</p>
                                     <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.position.positionName}</p>
                                 </div>
                                 <div>

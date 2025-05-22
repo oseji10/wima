@@ -14,8 +14,8 @@ const mainNavItems: NavItem[] = [
     //     icon: LayoutGrid,
     // },
     {
-        title: 'MSPs',
-        href: '/msps',
+        title: 'Hubs',
+        href: '/hubs',
         icon: NetworkIcon,
     },
     {
@@ -85,7 +85,7 @@ export function AppSidebar() {
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SidebarMenuButton size="lg" asChild>
-                            <Link href="/dashboard" prefetch>
+                            <Link href="#" prefetch>
                                 <AppLogo />
                             </Link>
                         </SidebarMenuButton>
@@ -97,10 +97,10 @@ export function AppSidebar() {
                 <NavMain items={mainNavItems} />
             </SidebarContent>
 
-            <SidebarFooter>
+            {/* <SidebarFooter>
                 <NavFooter items={footerNavItems} className="mt-auto" />
                 <NavUser />
-            </SidebarFooter>
+            </SidebarFooter> */}
         </Sidebar>
     );
 }
