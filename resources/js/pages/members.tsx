@@ -219,7 +219,7 @@ export default function Members({ msps, memberships, position }: Props) {
                     </div>
                 </header>
 
-                <div className="bg-[#f5f5f5] h-[300px] bg-[url('https://wimanigeria.com/wp-content/uploads/2025/05/A.jpg')] bg-cover bg-center">
+                <div className="bg-[#f5f5f5] h-[300px] bg-[url('https://wimanigeria.com/wp-content/uploads/2025/05/member_banner.png')] bg-cover bg-center">
                     <div className="max-w-[1170px] mx-auto px-[15px] h-full flex items-center">
                         <nav className="text-center w-full">
                             <h3 className="text-lg font-bold text-[#fff]">

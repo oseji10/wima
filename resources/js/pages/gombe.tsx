@@ -431,7 +431,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                                     <p className="text-sm font-medium text-[#333333] opacity-70">Specialization</p>
                                                     <p className="text-base text-[#333333] truncate" style={{ textTransform: 'uppercase' }}>{org.position.positionName}</p>
                                                 </div>
-                                                <div className="flex justify-end mt-2">
+                                                {/* <div className="flex justify-end mt-2">
                                                     <button
                                                         onClick={() => handleView(org)}
                                                         className="text-[#00a651] hover:text-[#008c44]"
@@ -442,7 +442,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                         </svg>
                                                     </button>
-                                                </div>
+                                                </div> */}
                                             </div>
                                         </div>
                                     ))}
