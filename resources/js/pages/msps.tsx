@@ -2,6 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
+import { Link } from '@inertiajs/react';
 
 interface Organization {
     id: number;
@@ -42,6 +43,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [isRequestModalOpen, setIsRequestModalOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
     const [viewingOrg, setViewingOrg] = useState<Organization | null>(null);
     const [currentPage, setCurrentPage] = useState(1);
@@ -52,6 +54,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const [requestState, setRequestState] = useState('');
     const itemsPerPage = 12;
 
+    // Iframe height communication with immediate updates
     useEffect(() => {
         const sendHeight = () => {
             const height = Math.max(
@@ -64,7 +67,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
             window.parent.postMessage({ height }, 'https://wimanigeria.com');
         };
 
-        sendHeight();
+        sendHeight(); // Immediate update
         window.addEventListener('resize', sendHeight);
         const observer = new MutationObserver(sendHeight);
         observer.observe(document.body, { childList: true, subtree: true });
@@ -73,7 +76,25 @@ export default function DBAs({ msps, memberships, position }: Props) {
             window.removeEventListener('resize', sendHeight);
             observer.disconnect();
         };
-    }, [isModalOpen, isViewModalOpen, isRequestModalOpen]);
+    }, [isModalOpen, isViewModalOpen, isRequestModalOpen, isMenuOpen]);
+
+    // Lock body scroll when modals or mobile menu are open
+    useEffect(() => {
+        if (isModalOpen || isViewModalOpen || isRequestModalOpen || isMenuOpen) {
+            const scrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
+            document.body.style.overflow = 'hidden';
+        } else {
+            const scrollY = document.body.style.top;
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
+            document.body.style.overflow = '';
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
+        }
+    }, [isModalOpen, isViewModalOpen, isRequestModalOpen, isMenuOpen]);
 
     const { data, setData, post, put, delete: destroy, processing, errors, reset } = useForm({
         mspId: '',
@@ -104,9 +125,9 @@ export default function DBAs({ msps, memberships, position }: Props) {
     }, [requestState, setRequestData]);
 
     const filteredMsps = msps.filter(org => 
-        (stateFilter === '' || org.state.stateName.toLowerCase() === stateFilter.toLowerCase()) &&
-        (lgaFilter === '' || org.lga.lgaName.toLowerCase() === lgaFilter.toLowerCase()) &&
-        (positionFilter === '' || org.position.positionName.toLowerCase() === positionFilter.toLowerCase()) &&
+        (stateFilter === '' || org.state?.stateName.toLowerCase() === stateFilter.toLowerCase()) &&
+        (lgaFilter === '' || org.lga?.lgaName.toLowerCase() === lgaFilter.toLowerCase()) &&
+        (positionFilter === '' || org.position?.positionName.toLowerCase() === positionFilter.toLowerCase()) &&
         (membershipFilter === '' || org.membership_plan?.membershipPlanName.toLowerCase() === membershipFilter.toLowerCase())
     );
 
@@ -120,13 +141,13 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const endRecord = Math.min(currentPage * itemsPerPage, filteredMsps.length);
     const totalRecords = filteredMsps.length;
 
-    const states = Array.from(new Set(msps.map(org => org.state.stateName))).sort();
+    const states = Array.from(new Set(msps.map(org => org.state?.stateName).filter(Boolean))).sort();
     const lgas = stateFilter
-        ? Array.from(new Set(msps.filter(org => org.state.stateName.toLowerCase() === stateFilter.toLowerCase()).map(org => org.lga.lgaName))).sort()
-        : Array.from(new Set(msps.map(org => org.lga.lgaName))).sort();
+        ? Array.from(new Set(msps.filter(org => org.state?.stateName.toLowerCase() === stateFilter.toLowerCase()).map(org => org.lga?.lgaName).filter(Boolean))).sort()
+        : Array.from(new Set(msps.map(org => org.lga?.lgaName).filter(Boolean))).sort();
     const requestLgas = requestState
-        ? Array.from(new Set(msps.filter(org => org.state.stateName.toLowerCase() === requestState.toLowerCase()).map(org => org.lga.lgaName))).sort()
-        : Array.from(new Set(msps.map(org => org.lga.lgaName))).sort();
+        ? Array.from(new Set(msps.filter(org => org.state?.stateName.toLowerCase() === requestState.toLowerCase()).map(org => org.lga?.lgaName).filter(Boolean))).sort()
+        : Array.from(new Set(msps.map(org => org.lga?.lgaName).filter(Boolean))).sort();
     
     const servicesList = ['Solar Treshers', 'Solar Dryers', 'Solar Knapsack Sprayers', 'Solar Water Pumps'];
 
@@ -155,7 +176,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
         postRequest('/request-service', {
             data: {
                 ...requestData,
-                // service: requestData.service, 
                 service: requestData.service.join(','), // Send as comma-separated string
             },
             onSuccess: () => {
@@ -170,14 +190,14 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const handleEdit = (org: Organization) => {
         setEditingOrg(org);
         setData({
-            mspId: org.mspId,
-            mspName: org.mspName,
-            state: org.state.stateName,
-            lga: org.lga.lgaName,
-            position: org.position.positionName,
+            mspId: org.mspId || '',
+            mspName: org.mspName || '',
+            state: org.state?.stateName || '',
+            lga: org.lga?.lgaName || '',
+            position: org.position?.positionName || '',
             membership_plan: org.membership_plan?.membershipPlanName || '',
-            services: org.services,
-            communityName: org.communityName,
+            services: org.services || '',
+            communityName: org.communityName || '',
         });
         setIsModalOpen(true);
     };
@@ -209,183 +229,292 @@ export default function DBAs({ msps, memberships, position }: Props) {
         return pages;
     };
 
+    const navLinks = [
+        { title: 'Home', href: 'https://wimanigeria.com/' },
+        { title: 'About', href: 'https://wimanigeria.com/about/' },
+        { title: 'Services', href: 'https://wimanigeria.com/services/' },
+        { title: 'Hubs', href: '/dashboard' },
+        { title: 'Gallery', href: 'https://wimanigeria.com/gallery/' },
+        { title: 'Contact', href: 'https://wimanigeria.com/contact/' },
+    ];
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Hubs" />
-            <div className="flex h-full flex-1 flex-col gap-2 p-2 sm:gap-4 sm:p-4">
-                <div className="mb-4 flex flex-col gap-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4">
-                        <button
-                            onClick={() => setIsRequestModalOpen(true)}
-                            className="px-3 py-1 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm sm:text-base"
-                        >
-                            Request Service
-                        </button>
-                        <h3 className="text-sm sm:text-base text-gray-700 dark:text-gray-300">
-                            Our hubs provide mechanized services using Solar Treshers, Solar Dryers, Solar Knapsack Sprayers and Solar water pumps
-                        </h3>
+            <div className="min-h-screen bg-[#f5f5f5] font-sans text-[#333333] dba-wrapper">
+                {/* Header */}
+                <header className="bg-[#333333] shadow-sm">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+                        <div className="flex items-center justify-between">
+                            <div className="flex justify-center flex-1">
+                                <img
+                                    src="https://wimanigeria.com/wp-content/uploads/2022/04/WIMA_logo_png.png"
+                                    alt="WIMA Nigeria Logo"
+                                    className="h-12 sm:h-16 max-w-[200px] object-contain"
+                                />
+                            </div>
+                            <button
+                                className="sm:hidden text-white focus:outline-none"
+                                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMenuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'} />
+                                </svg>
+                            </button>
+                        </div>
+                        <nav className={`sm:flex sm:items-center sm:gap-4 ${isMenuOpen ? 'block' : 'hidden'} sm:block mt-4 sm:mt-0 bg-[#333333] sm:bg-transparent`}>
+                            <ul className="flex flex-col sm:flex-row sm:gap-4 text-white text-sm font-semibold uppercase">
+                                {navLinks.map(link => (
+                                    <li key={link.title}>
+                                        {link.href.startsWith('https://') ? (
+                                            <a
+                                                href={link.href}
+                                                className={`block py-2 px-4 hover:bg-[#555555] sm:hover:bg-transparent sm:hover:text-gray-300 ${link.title === 'Hubs' ? 'bg-[#555555] sm:bg-transparent sm:text-gray-300' : ''}`}
+                                            >
+                                                {link.title}
+                                            </a>
+                                        ) : (
+                                            <Link
+                                                href={link.href}
+                                                className={`block py-2 px-4 hover:bg-[#555555] sm:hover:bg-transparent sm:hover:text-gray-300 ${link.title === 'Hubs' ? 'bg-[#555555] sm:bg-transparent sm:text-gray-300' : ''}`}
+                                            >
+                                                {link.title}
+                                            </Link>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        </nav>
                     </div>
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:flex-wrap">
-                        <div className="w-full sm:w-48">
-                            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Filter by State
-                            </label>
-                            <select
-                                value={stateFilter}
-                                onChange={(e) => {
-                                    setStateFilter(e.target.value);
-                                    setCurrentPage(1);
-                                }}
-                                className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
-                            >
-                                <option value="">All States</option>
-                                {states.map(state => (
-                                    <option key={state} value={state}>{state}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="w-full sm:w-48">
-                            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Filter by LGA
-                            </label>
-                            <select
-                                value={lgaFilter}
-                                onChange={(e) => {
-                                    setLgaFilter(e.target.value);
-                                    setCurrentPage(1);
-                                }}
-                                className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
-                            >
-                                <option value="">All LGAs</option>
-                                {lgas.map(lga => (
-                                    <option key={lga} value={lga}>{lga}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="w-full sm:w-48">
-                            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Filter by Specialization
-                            </label>
-                            <select
-                                value={positionFilter}
-                                onChange={(e) => {
-                                    setPositionFilter(e.target.value);
-                                    setCurrentPage(1);
-                                }}
-                                className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
-                            >
-                                <option value="">All Specializations</option>
-                                {position.map(pos => (
-                                    <option key={pos.positionId} value={pos.positionName}>{pos.positionName}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div className="w-full sm:w-48">
-                            <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Filter by Membership Plan
-                            </label>
-                            <select
-                                value={membershipFilter}
-                                onChange={(e) => {
-                                    setMembershipFilter(e.target.value);
-                                    setCurrentPage(1);
-                                }}
-                                className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
-                            >
-                                <option value="">All Membership Plans</option>
-                                {memberships.map(membership => (
-                                    <option key={membership.membershipPlanId} value={membership.membershipPlanName}>{membership.membershipPlanName}</option>
-                                ))}
-                            </select>
-                        </div>
+                </header>
+
+                {/* Breadcrumbs */}
+                <div className="bg-[#f5f5f5] py-4">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                        <nav className="text-sm text-[#333333]">
+                            <a href="https://wimanigeria.com/" className="hover:underline">Back Home</a>  
+                        </nav>
                     </div>
                 </div>
 
-                <div className="border-sidebar-border/70 dark:border-sidebar-border relative min-h-[100vh] flex-1 overflow-hidden rounded-xl border md:min-h-min">
-                    <div className="p-4 sm:p-6">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {paginatedMsps.map((org) => (
-                                <div
-                                    key={org.id}
-                                    className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-4 sm:p-6 border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow duration-150"
+                {/* Main Content */}
+                <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
+                        <div className="mb-6">
+                            <div className="flex flex-col gap-4 mb-6">
+                                <button
+                                    onClick={() => setIsRequestModalOpen(true)}
+                                    className="px-4 py-2 bg-[#00a651] text-white rounded-md hover:bg-[#008c44] focus:outline-none focus:ring-2 focus:ring-[#00a651] focus:ring-offset-2 text-sm w-full sm:w-auto"
                                 >
-                                    <div className="flex flex-col gap-3">
-                                        <div className="flex justify-center">
-                                            <svg className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
-                                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">MSP ID</p>
-                                            <p className="text-sm sm:text-base text-gray-900 dark:text-white truncate">{org.mspId}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Name</p>
-                                            <p className="text-sm sm:text-base text-gray-900 dark:text-white truncate" style={{ textTransform: 'uppercase' }}>{org.mspName}</p>
-                                        </div>
-                                        <div>
-                                            <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Location</p>
-                                            <p className="text-sm sm:text-base text-gray-900 dark:text-white truncate" style={{ textTransform: 'uppercase' }}>{org.communityName}, {org.lga.lgaName} - {org.state.stateName}</p>
-                                        </div>
-                                        <div className="flex justify-end mt-2">
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => handleView(org)}
-                                                    className="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300"
-                                                    title="View"
-                                                >
-                                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    Request Service
+                                </button>
+                                <h3 className="text-lg font-semibold text-[#333333]">
+                                    Our hubs provide mechanized services using Solar Treshers, Solar Dryers, Solar Knapsack Sprayers, and Solar Water Pumps
+                                </h3>
+                            </div>
+                            <div className="flex flex-col gap-4">
+                                <div className="w-full">
+                                    <label className="block text-sm font-medium text-[#333333] mb-1">
+                                        Filter by State
+                                    </label>
+                                    <select
+                                        value={stateFilter}
+                                        onChange={(e) => {
+                                            setStateFilter(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
+                                        className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
+                                    >
+                                        <option value="">All States</option>
+                                        {states.map(state => (
+                                            <option key={state} value={state}>{state}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="w-full">
+                                    <label className="block text-sm font-medium text-[#333333] mb-1">
+                                        Filter by LGA
+                                    </label>
+                                    <select
+                                        value={lgaFilter}
+                                        onChange={(e) => {
+                                            setLgaFilter(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
+                                        className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
+                                    >
+                                        <option value="">All LGAs</option>
+                                        {lgas.map(lga => (
+                                            <option key={lga} value={lga}>{lga}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="w-full">
+                                    <label className="block text-sm font-medium text-[#333333] mb-1">
+                                        Filter by Specialization
+                                    </label>
+                                    <select
+                                        value={positionFilter}
+                                        onChange={(e) => {
+                                            setPositionFilter(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
+                                        className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
+                                    >
+                                        <option value="">All Specializations</option>
+                                        {(position || []).map(pos => (
+                                            <option key={pos.positionId} value={pos.positionName}>{pos.positionName}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                                <div className="w-full">
+                                    <label className="block text-sm font-medium text-[#333333] mb-1">
+                                        Filter by Membership Plan
+                                    </label>
+                                    <select
+                                        value={membershipFilter}
+                                        onChange={(e) => {
+                                            setMembershipFilter(e.target.value);
+                                            setCurrentPage(1);
+                                        }}
+                                        className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
+                                    >
+                                        <option value="">All Membership Plans</option>
+                                        {(memberships || []).map(membership => (
+                                            <option key={membership.membershipPlanId} value={membership.membershipPlanName}>{membership.membershipPlanName}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="border border-[#e5e5e5] rounded-md">
+                            <div className="p-4 sm:p-6">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {paginatedMsps.map((org) => (
+                                        <div
+                                            key={org.id}
+                                            className="bg-white rounded-md shadow-sm p-4 border border-[#e5e5e5] hover:shadow-md transition-shadow duration-150 min-w-0"
+                                        >
+                                            <div className="flex flex-col gap-3">
+                                                <div className="flex justify-center">
+                                                    <svg className="w-12 h-12 text-[#333333] opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                                                     </svg>
-                                                </button>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-[#333333] opacity-70">MSP ID</p>
+                                                    <p className="text-base text-[#333333] truncate">{org.mspId}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-[#333333] opacity-70">Name</p>
+                                                    <p className="text-base text-[#333333] truncate" style={{ textTransform: 'uppercase' }}>{org.mspName}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-[#333333] opacity-70">Location</p>
+                                                    <p className="text-base text-[#333333] truncate" style={{ textTransform: 'uppercase' }}>{org.communityName}, {org.lga.lgaName} - {org.state.stateName}</p>
+                                                </div>
+                                                <div className="flex justify-end mt-2">
+                                                    <button
+                                                        onClick={() => handleView(org)}
+                                                        className="text-[#00a651] hover:text-[#008c44]"
+                                                        title="View"
+                                                    >
+                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row sm:justify-between items-center mt-4 px-4 py-3 gap-2">
+                                <button
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 1}
+                                    className="px-4 py-2 bg-[#e5e5e5] text-[#333333] rounded-md hover:bg-[#d5d5d5] disabled:opacity-50 text-sm"
+                                >
+                                    Previous
+                                </button>
+                                <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
+                                    <div className="text-[#333333] text-sm">
+                                        {startRecord}-{endRecord} of {totalRecords}
+                                    </div>
+                                    <div className="flex space-x-2">
+                                        {getVisiblePages().map((page) => (
+                                            <button
+                                                key={page}
+                                                onClick={() => handlePageChange(page)}
+                                                className={`px-3 py-1 rounded-md text-sm ${currentPage === page ? 'bg-[#00a651] text-white' : 'bg-[#e5e5e5] text-[#333333] hover:bg-[#d5d5d5]'}`}
+                                            >
+                                                {page}
+                                            </button>
+                                        ))}
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row sm:justify-between items-center mt-4 px-4 py-2 sm:px-6 sm:py-3 gap-2">
-                        <button
-                            onClick={() => handlePageChange(currentPage - 1)}
-                            disabled={currentPage === 1}
-                            className="px-3 py-1 sm:px-4 sm:py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-50 text-sm sm:text-base"
-                        >
-                            Previous
-                        </button>
-                        <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
-                            <div className="text-gray-700 dark:text-gray-300 text-xs sm:text-sm">
-                                {startRecord}-{endRecord} of {totalRecords}
-                            </div>
-                            <div className="flex space-x-2">
-                                {getVisiblePages().map((page) => (
-                                    <button
-                                        key={page}
-                                        onClick={() => handlePageChange(page)}
-                                        className={`px-2 py-1 sm:px-3 sm:py-1 rounded-md text-sm sm:text-base ${currentPage === page ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-500'}`}
-                                    >
-                                        {page}
-                                    </button>
-                                ))}
+                                <button
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage === totalPages}
+                                    className="px-4 py-2 bg-[#e5e5e5] text-[#333333] rounded-md hover:bg-[#d5d5d5] disabled:opacity-50 text-sm"
+                                >
+                                    Next
+                                </button>
                             </div>
                         </div>
-                        <button
-                            onClick={() => handlePageChange(currentPage + 1)}
-                            disabled={currentPage === totalPages}
-                            className="px-3 py-1 sm:px-4 sm:py-2 bg-gray-200 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 disabled:opacity-50 text-sm sm:text-base"
-                        >
-                            Next
-                        </button>
                     </div>
-                </div>
+                </main>
 
+                {/* Footer */}
+                <footer className="bg-[#333333] text-white py-6">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-4">
+                            <div>
+                                <h4 className="text-lg font-semibold mb-2">Contact Us</h4>
+                                <p className="text-sm">
+                                    123 WIMA Street, Lagos, Nigeria<br />
+                                    Phone: +234 123 456 7890<br />
+                                    Email: info@wimanigeria.com
+                                </p>
+                            </div>
+                            <div>
+                                <h4 className="text-lg font-semibold mb-2">Follow Us</h4>
+                                <div className="flex gap-4">
+                                    <a href="https://facebook.com" className="text-white hover:text-gray-300">
+                                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
+                                        </svg>
+                                    </a>
+                                    <a href="https://twitter.com" className="text-white hover:text-gray-300">
+                                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                        </svg>
+                                    </a>
+                                    <a href="https://instagram.com" className="text-white hover:text-gray-300">
+                                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.919-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.948-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                        </svg>
+                                    </a>
+                                    <a href="https://linkedin.com" className="text-white hover:text-gray-300">
+                                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/>
+                                        </svg>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+
+                {/* Add/Edit MSP Modal */}
                 {isModalOpen && (
-                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 pointer-events-none">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-md max-h-[80vh] overflow-y-auto pointer-events-auto">
-                            <div className="flex justify-between items-center mb-4 sm:mb-6">
-                                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
+                        <div className="bg-white rounded-md p-4 shadow-md border border-[#e5e5e5] w-full max-w-[90vw] max-h-[90vh] overflow-y-auto pointer-events-auto">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-bold text-[#333333]">
                                     {editingOrg ? 'Edit MSP' : 'Add New MSP'}
                                 </h2>
                                 <button
@@ -394,137 +523,137 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         setEditingOrg(null);
                                         reset();
                                     }}
-                                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none text-sm sm:text-base"
+                                    className="text-[#333333] hover:text-[#555555] focus:outline-none text-lg"
                                 >
                                     ✕
                                 </button>
                             </div>
 
                             <form onSubmit={handleSubmit}>
-                                <div className="space-y-4 sm:space-y-6">
+                                <div className="space-y-4">
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             MSP ID
                                         </label>
                                         <input
                                             type="text"
                                             value={data.mspId}
                                             onChange={(e) => setData('mspId', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                             placeholder="Enter MSP ID"
                                         />
                                         {errors.mspId && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.mspId}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{errors.mspId}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             Name
                                         </label>
                                         <input
                                             type="text"
                                             value={data.mspName}
                                             onChange={(e) => setData('mspName', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                             placeholder="Enter MSP name"
                                         />
                                         {errors.mspName && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.mspName}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{errors.mspName}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             State
                                         </label>
                                         <input
                                             type="text"
                                             value={data.state}
                                             onChange={(e) => setData('state', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                             placeholder="Enter state"
                                         />
                                         {errors.state && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.state}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{errors.state}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             LGA
                                         </label>
                                         <input
                                             type="text"
                                             value={data.lga}
                                             onChange={(e) => setData('lga', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                             placeholder="Enter LGA"
                                         />
                                         {errors.lga && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.lga}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{errors.lga}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             Community Name
                                         </label>
                                         <input
                                             type="text"
                                             value={data.communityName}
                                             onChange={(e) => setData('communityName', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                             placeholder="Enter community name"
                                         />
                                         {errors.communityName && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.communityName}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{errors.communityName}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             Specialization
                                         </label>
                                         <input
                                             type="text"
                                             value={data.position}
                                             onChange={(e) => setData('position', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                             placeholder="Enter position"
                                         />
                                         {errors.position && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.position}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{errors.position}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             Membership Plan
                                         </label>
                                         <input
                                             type="text"
                                             value={data.membership_plan}
                                             onChange={(e) => setData('membership_plan', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                             placeholder="Enter membership plan"
                                         />
                                         {errors.membership_plan && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.membership_plan}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{errors.membership_plan}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             Services
                                         </label>
                                         <input
                                             type="text"
                                             value={data.services}
                                             onChange={(e) => setData('services', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                             placeholder="Enter services"
                                         />
                                         {errors.services && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{errors.services}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{errors.services}</p>
                                         )}
                                     </div>
                                 </div>
 
-                                <div className="mt-4 sm:mt-6 flex justify-end gap-2 sm:gap-3">
+                                <div className="mt-6 flex justify-end gap-3">
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -532,14 +661,14 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                             setEditingOrg(null);
                                             reset();
                                         }}
-                                        className="px-3 py-1 sm:px-4 sm:py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                        className="px-4 py-2 text-[#333333] bg-[#e5e5e5] rounded-md hover:bg-[#d5d5d5] transition duration-150 ease-in-out text-sm"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={processing}
-                                        className="px-3 py-1 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition duration-150 ease-in-out text-sm sm:text-base"
+                                        className="px-4 py-2 bg-[#00a651] text-white rounded-md hover:bg-[#008c44] disabled:opacity-50 transition duration-150 ease-in-out text-sm"
                                     >
                                         {processing ? 'Saving...' : 'Save'}
                                     </button>
@@ -549,12 +678,12 @@ export default function DBAs({ msps, memberships, position }: Props) {
                     </div>
                 )}
 
+                {/* Request Service Modal */}
                 {isRequestModalOpen && (
-                    // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 pointer-events-none">
-                        <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-2 sm:p-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-md max-h-[80vh] overflow-y-auto pointer-events-auto">
-                            <div className="flex justify-between items-center mb-4 sm:mb-6">
-                                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
+                        <div className="bg-white rounded-md p-4 shadow-md border border-[#e5e5e5] w-full max-w-[90vw] max-h-[90vh] overflow-y-auto pointer-events-auto">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-bold text-[#333333]">
                                     Request Service
                                 </h2>
                                 <button
@@ -563,61 +692,61 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         resetRequest();
                                         setRequestState('');
                                     }}
-                                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none text-sm sm:text-base"
+                                    className="text-[#333333] hover:text-[#555555] focus:outline-none text-lg"
                                 >
                                     ✕
                                 </button>
                             </div>
 
                             <form onSubmit={handleRequestSubmit}>
-                                <div className="space-y-4 sm:space-y-6">
+                                <div className="space-y-4">
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             Name
                                         </label>
                                         <input
                                             type="text"
                                             value={requestData.name}
                                             onChange={(e) => setRequestData('name', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                             placeholder="Enter your name"
                                         />
                                         {requestErrors.name && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.name}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{requestErrors.name}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             Email
                                         </label>
                                         <input
                                             type="email"
                                             value={requestData.email}
                                             onChange={(e) => setRequestData('email', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                             placeholder="Enter your email"
                                         />
                                         {requestErrors.email && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.email}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{requestErrors.email}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             Phone Number
                                         </label>
                                         <input
                                             type="tel"
                                             value={requestData.phone_number}
                                             onChange={(e) => setRequestData('phone_number', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                             placeholder="Enter your phone number"
                                         />
                                         {requestErrors.phone_number && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.phone_number}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{requestErrors.phone_number}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             State
                                         </label>
                                         <select
@@ -626,7 +755,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                                 setRequestData('state', e.target.value);
                                                 setRequestState(e.target.value);
                                             }}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                         >
                                             <option value="">Select State</option>
                                             {states.map(state => (
@@ -634,17 +763,17 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                             ))}
                                         </select>
                                         {requestErrors.state && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.state}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{requestErrors.state}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             LGA
                                         </label>
                                         <select
                                             value={requestData.lga}
                                             onChange={(e) => setRequestData('lga', e.target.value)}
-                                            className="block w-full px-3 py-1 sm:px-4 sm:py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm sm:text-base"
+                                            className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
                                         >
                                             <option value="">Select LGA</option>
                                             {requestLgas.map(lga => (
@@ -652,14 +781,14 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                             ))}
                                         </select>
                                         {requestErrors.lga && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.lga}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{requestErrors.lga}</p>
                                         )}
                                     </div>
                                     <div>
-                                        <label className="block text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                        <label className="block text-sm font-medium text-[#333333] mb-1">
                                             Services Requested (Select one or more)
                                         </label>
-                                        <div className="space-y-2">
+                                        <div className="space-y-2 pointer-events-auto">
                                             {servicesList.map(service => (
                                                 <div key={service} className="flex items-center">
                                                     <input
@@ -668,27 +797,26 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                                         value={service}
                                                         checked={requestData.service.includes(service)}
                                                         onChange={(e) => {
-                                                            console.log(`Checkbox ${service} clicked, checked: ${e.target.checked}`);
                                                             const updatedServices = e.target.checked
                                                                 ? [...requestData.service, service]
                                                                 : requestData.service.filter(s => s !== service);
                                                             setRequestData('service', updatedServices);
                                                         }}
-                                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 rounded"
+                                                        className="h-5 w-5 text-[#00a651] focus:ring-[#00a651] border-[#e5e5e5] rounded pointer-events-auto"
                                                     />
-                                                    <label htmlFor={service} className="ml-2 text-sm text-gray-900 dark:text-white">
+                                                    <label htmlFor={service} className="ml-2 text-sm text-[#333333]">
                                                         {service}
                                                     </label>
                                                 </div>
                                             ))}
                                         </div>
                                         {requestErrors.service && (
-                                            <p className="mt-1 text-xs sm:text-sm text-red-600">{requestErrors.service}</p>
+                                            <p className="mt-1 text-sm text-[#ff0000]">{requestErrors.service}</p>
                                         )}
                                     </div>
                                 </div>
 
-                                <div className="mt-4 sm:mt-6 flex justify-end gap-2 sm:gap-3">
+                                <div className="mt-6 flex justify-end gap-3">
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -696,14 +824,14 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                             resetRequest();
                                             setRequestState('');
                                         }}
-                                        className="px-3 py-1 sm:px-4 sm:py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                        className="px-4 py-2 text-[#333333] bg-[#e5e5e5] rounded-md hover:bg-[#d5d5d5] transition duration-150 ease-in-out text-sm"
                                     >
                                         Cancel
                                     </button>
                                     <button
                                         type="submit"
                                         disabled={requestProcessing}
-                                        className="px-3 py-1 sm:px-4 sm:py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition duration-150 ease-in-out text-sm sm:text-base"
+                                        className="px-4 py-2 bg-[#00a651] text-white rounded-md hover:bg-[#008c44] disabled:opacity-50 transition duration-150 ease-in-out text-sm"
                                     >
                                         {requestProcessing ? 'Submitting...' : 'Submit'}
                                     </button>
@@ -713,48 +841,48 @@ export default function DBAs({ msps, memberships, position }: Props) {
                     </div>
                 )}
 
+                {/* View MSP Modal */}
                 {isViewModalOpen && viewingOrg && (
-                    // <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4 pointer-events-none">
-                        <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-2 sm:p-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-3 sm:p-6 shadow-xl border border-gray-200 dark:border-gray-700 w-[calc(100%-1rem)] sm:w-full max-w-full sm:max-w-md max-h-[80vh] overflow-y-auto pointer-events-auto">
-                            <div className="flex justify-between items-center mb-4 sm:mb-6">
-                                <h2 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                    <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-2">
+                        <div className="bg-white rounded-md p-4 shadow-md border border-[#e5e5e5] w-full max-w-[90vw] max-h-[90vh] overflow-y-auto pointer-events-auto">
+                            <div className="flex justify-between items-center mb-4">
+                                <h2 className="text-xl font-bold text-[#333333]">
                                     MSP Details
                                 </h2>
                                 <button
                                     onClick={() => setIsViewModalOpen(false)}
-                                    className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none text-sm sm:text-base"
+                                    className="text-[#333333] hover:text-[#555555] focus:outline-none text-lg"
                                 >
                                     ✕
                                 </button>
                             </div>
-                            <div className="space-y-3 sm:space-y-4">
+                            <div className="space-y-4">
                                 <div className="flex justify-center">
-                                    <svg className="w-16 h-16 sm:w-24 sm:h-24 text-gray-400" fill="currentColor" viewBox="0 0 24 24">
+                                    <svg className="w-16 h-16 text-[#333333] opacity-50" fill="currentColor" viewBox="0 0 24 24">
                                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                                     </svg>
                                 </div>
                                 <div>
-                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">MSP ID</p>
-                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.mspId}</p>
+                                    <p className="text-sm font-medium text-[#333333] opacity-70">MSP ID</p>
+                                    <p className="text-base text-[#333333]">{viewingOrg.mspId}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Name</p>
-                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white" style={{ textTransform: 'uppercase' }}>{viewingOrg.mspName}</p>
+                                    <p className="text-sm font-medium text-[#333333] opacity-70">Name</p>
+                                    <p className="text-base text-[#333333]" style={{ textTransform: 'uppercase' }}>{viewingOrg.mspName}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Location</p>
-                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.communityName}, {viewingOrg.lga.lgaName} - {viewingOrg.state.stateName}</p>
+                                    <p className="text-sm font-medium text-[#333333] opacity-70">Location</p>
+                                    <p className="text-base text-[#333333]">{viewingOrg.communityName}, {viewingOrg.lga.lgaName} - {viewingOrg.state.stateName}</p>
                                 </div>
                                 <div>
-                                    <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300">Specialization</p>
-                                    <p className="text-sm sm:text-base text-gray-900 dark:text-white">{viewingOrg.position.positionName}</p>
+                                    <p className="text-sm font-medium text-[#333333] opacity-70">Specialization</p>
+                                    <p className="text-base text-[#333333]">{viewingOrg.position.positionName}</p>
                                 </div>
                             </div>
-                            <div className="mt-4 sm:mt-6 flex justify-end">
+                            <div className="mt-6 flex justify-end">
                                 <button
                                     onClick={() => setIsViewModalOpen(false)}
-                                    className="px-3 py-1 sm:px-4 sm:py-2 text-gray-700 dark:text-gray-300 bg-gray-200 dark:bg-gray-600 rounded-md hover:bg-gray-300 dark:hover:bg-gray-500 transition duration-150 ease-in-out text-sm sm:text-base"
+                                    className="px-4 py-2 text-[#333333] bg-[#e5e5e5] rounded-md hover:bg-[#d5d5d5] transition duration-150 ease-in-out text-sm"
                                 >
                                     Close
                                 </button>
