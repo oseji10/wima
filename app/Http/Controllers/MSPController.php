@@ -41,7 +41,7 @@ class MSPController extends Controller
         $position = Position::all();
         $msps = MSPs::where('state', '=', 18)->with(['state', 'lga', 'position', 'membership_plan'])->get()->toArray();
         // return $msps;
-        return Inertia::render('adamawa', [
+        return Inertia::render('gombe', [
             'msps' => $msps,
             'memberships' => $memberships,
             'position' => $position,
@@ -55,7 +55,7 @@ class MSPController extends Controller
         $position = Position::all();
         $msps = MSPs::where('state', '=', 9)->with(['state', 'lga', 'position', 'membership_plan'])->get()->toArray();
         // return $msps;
-        return Inertia::render('adamawa', [
+        return Inertia::render('kaduna', [
             'msps' => $msps,
             'memberships' => $memberships,
             'position' => $position,
@@ -69,7 +69,7 @@ class MSPController extends Controller
         $position = Position::all();
         $msps = MSPs::where('state', '=', 10)->with(['state', 'lga', 'position', 'membership_plan'])->get()->toArray();
         // return $msps;
-        return Inertia::render('adamawa', [
+        return Inertia::render('kano', [
             'msps' => $msps,
             'memberships' => $memberships,
             'position' => $position,
