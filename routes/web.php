@@ -68,7 +68,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 });
 
-Route::get('/hubs', [MSPController::class, 'index'])->name('msps.index');
+Route::get('/adamawa', [MSPController::class, 'adamawa'])->name('msps.adamawa');
+Route::get('/gombe', [MSPController::class, 'gombe'])->name('msps.gombe');
+Route::get('/kaduna', [MSPController::class, 'kaduna'])->name('msps.kaduna');
+Route::get('/kano', [MSPController::class, 'kano'])->name('msps.kano');
+
 Route::get('/members', [MSPController::class, 'members'])->name('members.index');
 Route::post('/request-service', [ServiceRequestController::class, 'store'])->name('request-service.store');
 

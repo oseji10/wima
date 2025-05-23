@@ -19,14 +19,57 @@ class MSPController extends Controller
     //     ]);
     // }
 
-    public function index()
+    public function adamawa()
     {
         
         $memberships = MembershipPlan::all();
         $position = Position::all();
-        $msps = MSPs::with(['state', 'lga', 'position', 'membership_plan'])->get()->toArray();
+        $msps = MSPs::where('state', '=', 15)->with(['state', 'lga', 'position', 'membership_plan'])->get()->toArray();
         // return $msps;
-        return Inertia::render('msps', [
+        return Inertia::render('adamawa', [
+            'msps' => $msps,
+            'memberships' => $memberships,
+            'position' => $position,
+        ]);
+    }
+
+  
+    public function gombe()
+    {
+        
+        $memberships = MembershipPlan::all();
+        $position = Position::all();
+        $msps = MSPs::where('state', '=', 18)->with(['state', 'lga', 'position', 'membership_plan'])->get()->toArray();
+        // return $msps;
+        return Inertia::render('adamawa', [
+            'msps' => $msps,
+            'memberships' => $memberships,
+            'position' => $position,
+        ]);
+    }
+
+    public function kaduna()
+    {
+        
+        $memberships = MembershipPlan::all();
+        $position = Position::all();
+        $msps = MSPs::where('state', '=', 9)->with(['state', 'lga', 'position', 'membership_plan'])->get()->toArray();
+        // return $msps;
+        return Inertia::render('adamawa', [
+            'msps' => $msps,
+            'memberships' => $memberships,
+            'position' => $position,
+        ]);
+    }
+
+    public function kano()
+    {
+        
+        $memberships = MembershipPlan::all();
+        $position = Position::all();
+        $msps = MSPs::where('state', '=', 10)->with(['state', 'lga', 'position', 'membership_plan'])->get()->toArray();
+        // return $msps;
+        return Inertia::render('adamawa', [
             'msps' => $msps,
             'memberships' => $memberships,
             'position' => $position,

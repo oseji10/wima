@@ -54,7 +54,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const [requestState, setRequestState] = useState('');
     const itemsPerPage = 12;
 
-    // Iframe height communication with immediate updates
     useEffect(() => {
         const sendHeight = () => {
             const height = Math.max(
@@ -67,7 +66,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
             window.parent.postMessage({ height }, 'https://wimanigeria.com');
         };
 
-        sendHeight(); // Immediate update
+        sendHeight();
         window.addEventListener('resize', sendHeight);
         const observer = new MutationObserver(sendHeight);
         observer.observe(document.body, { childList: true, subtree: true });
@@ -78,7 +77,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
         };
     }, [isModalOpen, isViewModalOpen, isRequestModalOpen, isMenuOpen]);
 
-    // Lock body scroll when modals or mobile menu are open
     useEffect(() => {
         if (isModalOpen || isViewModalOpen || isRequestModalOpen || isMenuOpen) {
             const scrollY = window.scrollY;
@@ -231,19 +229,20 @@ export default function DBAs({ msps, memberships, position }: Props) {
 
     const navLinks = [
         { title: 'Home', href: 'https://wimanigeria.com/' },
-        // { title: 'About Us', href: 'https://wimanigeria.com/about/' },
-        // { title: 'Contact', href: 'https://wimanigeria.com/contact/' },
-        // { title: 'FAQs', href: 'https://wimanigeria.com/faqs/' },
-        // { title: 'Blog', href: 'https://wimanigeria.com/blog/' },
-        // { title: 'Hubs', href: '/dashboard' },
-        // { title: 'Members', href: 'https://wimanigeria.com/members/' },
+    ];
+
+    const hubsDropdown = [
+        { title: 'Adamawa', href: 'https://dashboard.wimanigeria.com/adamawa/' },
+        { title: 'Gombe', href: 'https://dashboard.wimanigeria.com/gombe/' },
+        { title: 'Kaduna', href: 'https://dashboard.wimanigeria.com/kaduna/' },
+        { title: 'Kano', href: 'https://dashboard.wimanigeria.com/kano/' },
+       
     ];
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Hubs" />
             <div className="min-h-screen bg-[#f5f5f5] font-sans text-[#333333] dba-wrapper">
-                {/* Header */}
                 <header className="bg-[#E8F5E9] py-[15px]">
                     <div className="max-w-[1170px] mx-auto px-[15px] flex items-center justify-between">
                         <div className="flex items-center space-x-[15px]">
@@ -257,7 +256,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                 Empowering Women<br/> Driving Mechanization & <br/>Transforming Agriculture
                             </div>
                         </div>
-                        <nav className="flex items-center">
+                        <nav className="flex items-center relative">
                             <ul className="flex space-x-[15px] text-[#333333] text-[13px] font-semibold uppercase tracking-[0.5px]">
                                 {navLinks.map((link, index) => (
                                     <li key={link.title}>
@@ -270,28 +269,47 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         </a>
                                     </li>
                                 ))}
+                                <li className="relative">
+                                    <button
+                                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                        className="text-[#333333] hover:text-[#00A651] focus:outline-none flex items-center"
+                                    >
+                                        HUBS
+                                        <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    {isMenuOpen && (
+                                        <ul className="absolute top-full left-0 mt-2 w-48 bg-white border border-[#e5e5e5] rounded-md shadow-lg z-10">
+                                            {hubsDropdown.map((item) => (
+                                                <li key={item.title}>
+                                                    <Link
+                                                        href={item.href}
+                                                        className="block px-4 py-2 text-sm text-[#333333] hover:bg-[#e5e5e5] hover:text-[#00A651]"
+                                                        onClick={() => setIsMenuOpen(false)}
+                                                    >
+                                                        {item.title}
+                                                    </Link>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    )}
+                                </li>
                             </ul>
-                            {/* <h2><b>Our Hubs</b></h2> */}
                         </nav>
                     </div>
                 </header>
 
-                {/* Breadcrumbs */}
-                <div className="bg-[#f5f5f5] h-[200px] bg-[url('https://wimanigeria.com/wp-content/uploads/2025/05/A.jpg')] bg-cover bg-center">
+                <div className="bg-[#f5f5f5] h-[300px] bg-[url('https://wimanigeria.com/wp-content/uploads/2025/05/hub_design.png')] bg-cover bg-center" style={{ backgroundSize: '100%' }}>
                     <div className="max-w-[1170px] mx-auto px-[15px] h-full flex items-center">
                         <nav className="text-center w-full">
                             <h3 className="text-lg font-bold text-[#fff]">
-                                {/* <a href="https://wimanigeria.com/" className="hover:underline">
-                                    Home
-                                </a> */}
-                                <span className="mx-[8px]"></span>
-                                {/* <span>Hubs</span> */}
+                                <span>KADUNA HUB</span>
                             </h3>
                         </nav>
                     </div>
                 </div>
 
-                {/* Main Content */}
                 <main className="max-w-[1170px] mx-auto px-[15px] py-6">
                     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                         <div className="mb-6">
@@ -307,7 +325,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                 </button>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4">
-                                <div className="flex-1 min-w-0">
+                                {/* <div className="flex-1 min-w-0">
                                     <label className="block text-sm font-medium text-[#333333] mb-1">
                                         Filter by State
                                     </label>
@@ -324,7 +342,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                             <option key={state} value={state}>{state}</option>
                                         ))}
                                     </select>
-                                </div>
+                                </div> */}
                                 <div className="flex-1 min-w-0">
                                     <label className="block text-sm font-medium text-[#333333] mb-1">
                                         Filter by LGA
@@ -413,7 +431,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                                     <p className="text-sm font-medium text-[#333333] opacity-70">Specialization</p>
                                                     <p className="text-base text-[#333333] truncate" style={{ textTransform: 'uppercase' }}>{org.position.positionName}</p>
                                                 </div>
-                                                {/* <div className="flex justify-end mt-2">
+                                                <div className="flex justify-end mt-2">
                                                     <button
                                                         onClick={() => handleView(org)}
                                                         className="text-[#00a651] hover:text-[#008c44]"
@@ -424,7 +442,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                         </svg>
                                                     </button>
-                                                </div> */}
+                                                </div>
                                             </div>
                                         </div>
                                     ))}
@@ -467,7 +485,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
                     </div>
                 </main>
 
-                {/* Footer */}
                 <footer className="bg-[#1A3C34] text-white py-4">
                     <div className="max-w-[1170px] mx-auto px-[15px] flex flex-col items-center">
                         <img
@@ -476,17 +493,17 @@ export default function DBAs({ msps, memberships, position }: Props) {
                             className="h-16 mb-4"
                         />
                         <div className="flex space-x-6 mb-4">
-                            <a href="https://facebook.com" className="text-white hover:text-gray-300">
+                            <a href="https://web.facebook.com/womeninmechanizedagriculture?_rdc=1&_rdr" className="text-white hover:text-gray-300">
                                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/>
                                 </svg>
                             </a>
-                            <a href="https://instagram.com" className="text-white hover:text-gray-300">
+                            <a href="https://www.instagram.com/wima.nigeria/" className="text-white hover:text-gray-300">
                                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.919-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.948-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
                                 </svg>
                             </a>
-                            <a href="https://linkedin.com" className="text-white hover:text-gray-300">
+                            <a href="https://www.linkedin.com/company/106617937/admin/page-posts/published/" className="text-white hover:text-gray-300">
                                 <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
                                     <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm7.982 0h-4.968v16h4.969v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/>
                                 </svg>
@@ -496,7 +513,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
                     </div>
                 </footer>
 
-                {/* Add/Edit MSP Modal */}
                 {isModalOpen && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
                         <div className="bg-white rounded-md p-4 shadow-md border border-[#e5e5e5] w-full max-w-[90vw] max-h-[90vh] overflow-y-auto pointer-events-auto">
@@ -665,7 +681,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
                     </div>
                 )}
 
-                {/* Request Service Modal */}
                 {isRequestModalOpen && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
                         <div className="bg-white rounded-md p-4 shadow-md border border-[#e5e5e5] w-full max-w-[90vw] max-h-[90vh] overflow-y-auto pointer-events-auto">
@@ -775,7 +790,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         <label className="block text-sm font-medium text-[#333333] mb-1">
                                             Services Requested (Select one or more)
                                         </label>
-                                        <div className="space-y-2 pointer-events-auto">
+                                        <div className="space-y-2">
                                             {servicesList.map(service => (
                                                 <div key={service} className="flex items-center">
                                                     <input
@@ -789,7 +804,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                                                 : requestData.service.filter(s => s !== service);
                                                             setRequestData('service', updatedServices);
                                                         }}
-                                                        className="h-5 w-5 text-[#00a651] focus:ring-[#00a651] border-[#e5e5e5] rounded pointer-events-auto"
+                                                        className="h-5 w-5 text-[#00a651] focus:ring-[#00a651] border-[#e5e5e5] rounded"
                                                     />
                                                     <label htmlFor={service} className="ml-2 text-sm text-[#333333]">
                                                         {service}
@@ -828,7 +843,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
                     </div>
                 )}
 
-                {/* View MSP Modal */}
                 {isViewModalOpen && viewingOrg && (
                     <div className="fixed inset-0 bg-transparent flex items-center justify-center z-50 p-2">
                         <div className="bg-white rounded-md p-4 shadow-md border border-[#e5e5e5] w-full max-w-[90vw] max-h-[90vh] overflow-y-auto pointer-events-auto">
