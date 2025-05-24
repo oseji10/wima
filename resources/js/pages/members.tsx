@@ -2,6 +2,7 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
+import { Link } from '@inertiajs/react';
 
 interface Organization {
     id: number;
@@ -50,6 +51,7 @@ export default function Members({ msps, memberships, position }: Props) {
     const [lgaFilter, setLgaFilter] = useState('');
     const [positionFilter, setPositionFilter] = useState('');
     const [membershipFilter, setMembershipFilter] = useState('');
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const itemsPerPage = 12;
 
     useEffect(() => {
@@ -184,6 +186,15 @@ export default function Members({ msps, memberships, position }: Props) {
         // { title: 'Members', href: '/members' },
     ];
 
+    const hubsDropdown = [
+        { title: 'Adamawa', href: 'https://dashboard.wimanigeria.com/adamawa/' },
+        { title: 'Gombe', href: 'https://dashboard.wimanigeria.com/gombe/' },
+        { title: 'Kaduna', href: 'https://dashboard.wimanigeria.com/kaduna/' },
+        { title: 'Kano', href: 'https://dashboard.wimanigeria.com/kano/' },
+        // { title: 'Test', href: '/kano' },
+       
+    ];
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Members" />
@@ -214,6 +225,32 @@ export default function Members({ msps, memberships, position }: Props) {
                                         </a>
                                     </li>
                                 ))}
+                                <li className="relative">
+                                                                    <button
+                                                                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                                                        className="text-[#333333] hover:text-[#00A651] focus:outline-none flex items-center"
+                                                                    >
+                                                                        HUBS
+                                                                        <svg className="w-4 h-4 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                                                            <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+                                                                        </svg>
+                                                                    </button>
+                                                                    {isMenuOpen && (
+                                                                        <ul className="absolute top-full left-0 mt-2 w-48 bg-white border border-[#e5e5e5] rounded-md shadow-lg z-10">
+                                                                            {hubsDropdown.map((item) => (
+                                                                                <li key={item.title}>
+                                                                                    <Link
+                                                                                        href={item.href}
+                                                                                        className="block px-4 py-2 text-sm text-[#333333] hover:bg-[#e5e5e5] hover:text-[#00A651]"
+                                                                                        onClick={() => setIsMenuOpen(false)}
+                                                                                    >
+                                                                                        {item.title}
+                                                                                    </Link>
+                                                                                </li>
+                                                                            ))}
+                                                                        </ul>
+                                                                    )}
+                                                                </li>
                             </ul>
                         </nav>
                     </div>

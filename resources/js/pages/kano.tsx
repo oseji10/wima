@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from '@inertiajs/react';
 
 interface Organization {
@@ -53,6 +53,9 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const [membershipFilter, setMembershipFilter] = useState('');
     const [requestState, setRequestState] = useState('');
     const itemsPerPage = 12;
+
+    // Reference for the carousel container
+    const carouselRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const sendHeight = () => {
@@ -227,6 +230,19 @@ export default function DBAs({ msps, memberships, position }: Props) {
         return pages;
     };
 
+    // Functions to handle carousel scrolling
+    const scrollLeft = () => {
+        if (carouselRef.current) {
+            carouselRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+        }
+    };
+
+    const scrollRight = () => {
+        if (carouselRef.current) {
+            carouselRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+        }
+    };
+
     const navLinks = [
         { title: 'Home', href: 'https://wimanigeria.com/' },
     ];
@@ -236,7 +252,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
         { title: 'Gombe', href: 'https://dashboard.wimanigeria.com/gombe/' },
         { title: 'Kaduna', href: 'https://dashboard.wimanigeria.com/kaduna/' },
         { title: 'Kano', href: 'https://dashboard.wimanigeria.com/kano/' },
-       
     ];
 
     return (
@@ -297,6 +312,8 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                 </li>
                             </ul>
                         </nav>
+                        <h2 style={{fontWeight: 'bolder'}}>KANO HUB</h2>
+
                     </div>
                 </header>
 
@@ -304,13 +321,123 @@ export default function DBAs({ msps, memberships, position }: Props) {
                     <div className="max-w-[1170px] mx-auto px-[15px] h-full flex items-center">
                         <nav className="text-center w-full">
                             <h3 className="text-lg font-bold text-[#fff]">
-                                <span>KANO HUB</span>
+                                {/* <span>ADAMAWA HUB</span> */}
                             </h3>
                         </nav>
                     </div>
                 </div>
 
+
                 <main className="max-w-[1170px] mx-auto px-[15px] py-6">
+                    {/* Updated Images and Videos Section with Scrollable Carousel */}
+                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mt-6 relative">
+                        <h3 className="text-lg font-semibold text-[#333333] mb-4">
+                            Images and Videos
+                        </h3>
+                        <div className="relative">
+                            {/* Left Arrow */}
+                            <button
+                                onClick={scrollLeft}
+                                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-[#00a651] text-white p-2 rounded-full hover:bg-[#008c44] focus:outline-none z-10"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+
+                            {/* Carousel Container */}
+                            <div
+                                ref={carouselRef}
+                                className="flex overflow-x-auto space-x-4 pb-4 scrollbar-thin scrollbar-thumb-[#00a651] scrollbar-track-[#e5e5e5] snap-x snap-mandatory"
+                                style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'thin' }}
+                            >
+                                {/* Images */}
+                                {/* <div className="flex-none w-64 snap-center">
+                                    <img
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/adamawa_hub_pic1.jpg"
+                                        alt="Kano Hub Activity 1"
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    />
+                                    <p className="text-sm text-[#333333] mt-2 text-center">A visit by the WIMA team to Adamawa Hub</p>
+                                </div> */}
+                                {/* <div className="flex-none w-64 snap-center">
+                                    <img
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/B.jpg"
+                                        alt="Adamawa Hub Activity 2"
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    />
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Community Training Session</p>
+                                </div>
+                                <div className="flex-none w-64 snap-center">
+                                    <img
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/C.jpg"
+                                        alt="Adamawa Hub Activity 3"
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    />
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Solar Dryer Demonstration</p>
+                                </div>
+                                <div className="flex-none w-64 snap-center">
+                                    <img
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/D.jpg"
+                                        alt="Adamawa Hub Activity 4"
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    />
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Women in Agriculture</p>
+                                </div> */}
+
+                                {/* Videos */}
+                                <div className="flex-none w-64 snap-center">
+                                    <video
+                                        controls
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    >
+                                        <source
+                                            src="https://wimanigeria.com/wp-content/uploads/2025/05/hub_video.mp4"
+                                            type="video/mp4"
+                                        />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Kano Hub Overview</p>
+                                </div>
+                                <div className="flex-none w-64 snap-center">
+                                    <video
+                                        controls
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    >
+                                        <source
+                                            src="https://wimanigeria.com/wp-content/uploads/2025/05/hub_video_2.mp4"
+                                            type="video/mp4"
+                                        />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Solar Water Pump Demo</p>
+                                </div>
+                                <div className="flex-none w-64 snap-center">
+                                    <video
+                                        controls
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    >
+                                        <source
+                                            src="https://wimanigeria.com/wp-content/uploads/2025/05/hub_video_3.mp4"
+                                            type="video/mp4"
+                                        />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Training Workshop</p>
+                                </div>
+                            </div>
+
+                            {/* Right Arrow */}
+                            <button
+                                onClick={scrollRight}
+                                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-[#00a651] text-white p-2 rounded-full hover:bg-[#008c44] focus:outline-none z-10"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                         <div className="mb-6">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
@@ -325,24 +452,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                 </button>
                             </div>
                             <div className="flex flex-col sm:flex-row gap-4">
-                                {/* <div className="flex-1 min-w-0">
-                                    <label className="block text-sm font-medium text-[#333333] mb-1">
-                                        Filter by State
-                                    </label>
-                                    <select
-                                        value={stateFilter}
-                                        onChange={(e) => {
-                                            setStateFilter(e.target.value);
-                                            setCurrentPage(1);
-                                        }}
-                                        className="block w-full px-4 py-2 rounded-md border border-[#e5e5e5] bg-white text-[#333333] focus:ring-2 focus:ring-[#00a651] focus:border-[#00a651] text-sm"
-                                    >
-                                        <option value="">All States</option>
-                                        {states.map(state => (
-                                            <option key={state} value={state}>{state}</option>
-                                        ))}
-                                    </select>
-                                </div> */}
                                 <div className="flex-1 min-w-0">
                                     <label className="block text-sm font-medium text-[#333333] mb-1">
                                         Filter by LGA
@@ -426,23 +535,10 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                                     <p className="text-sm font-medium text-[#333333] opacity-70">Location</p>
                                                     <p className="text-base text-[#333333] truncate" style={{ textTransform: 'uppercase' }}>{org.communityName}, {org.lga.lgaName} - {org.state.stateName}</p>
                                                 </div>
-
                                                 <div>
                                                     <p className="text-sm font-medium text-[#333333] opacity-70">Specialization</p>
                                                     <p className="text-base text-[#333333] truncate" style={{ textTransform: 'uppercase' }}>{org.position.positionName}</p>
                                                 </div>
-                                                {/* <div className="flex justify-end mt-2">
-                                                    <button
-                                                        onClick={() => handleView(org)}
-                                                        className="text-[#00a651] hover:text-[#008c44]"
-                                                        title="View"
-                                                    >
-                                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                        </svg>
-                                                    </button>
-                                                </div> */}
                                             </div>
                                         </div>
                                     ))}
@@ -483,6 +579,8 @@ export default function DBAs({ msps, memberships, position }: Props) {
                             </div>
                         </div>
                     </div>
+
+                    
                 </main>
 
                 <footer className="bg-[#1A3C34] text-white py-4">

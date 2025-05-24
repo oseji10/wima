@@ -1,7 +1,7 @@
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, useForm } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from '@inertiajs/react';
 
 interface Organization {
@@ -53,6 +53,9 @@ export default function DBAs({ msps, memberships, position }: Props) {
     const [membershipFilter, setMembershipFilter] = useState('');
     const [requestState, setRequestState] = useState('');
     const itemsPerPage = 12;
+
+    // Reference for the carousel container
+        const carouselRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const sendHeight = () => {
@@ -239,6 +242,19 @@ export default function DBAs({ msps, memberships, position }: Props) {
        
     ];
 
+      // Functions to handle carousel scrolling
+      const scrollLeft = () => {
+        if (carouselRef.current) {
+            carouselRef.current.scrollBy({ left: -300, behavior: 'smooth' });
+        }
+    };
+
+    const scrollRight = () => {
+        if (carouselRef.current) {
+            carouselRef.current.scrollBy({ left: 300, behavior: 'smooth' });
+        }
+    };
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Hubs" />
@@ -297,20 +313,132 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                 </li>
                             </ul>
                         </nav>
+                        <h2 style={{fontWeight: 'bolder'}}>KADUNA HUB</h2>
                     </div>
                 </header>
 
                 <div className="bg-[#f5f5f5] h-[300px] bg-[url('https://wimanigeria.com/wp-content/uploads/2025/05/hub_design.png')] bg-cover bg-center" style={{ backgroundSize: '100%' }}>
                     <div className="max-w-[1170px] mx-auto px-[15px] h-full flex items-center">
                         <nav className="text-center w-full">
-                            <h3 className="text-lg font-bold text-[#fff]">
-                                <span>KADUNA HUB</span>
+                            <h3 className="text-lg font-bold text-[#000]">
+                                {/* <span>KADUNA HUB</span> */}
                             </h3>
                         </nav>
                     </div>
                 </div>
 
                 <main className="max-w-[1170px] mx-auto px-[15px] py-6">
+
+                    {/* Updated Images and Videos Section with Scrollable Carousel */}
+                    <div className="bg-white rounded-lg shadow-md p-4 sm:p-6 mt-6 relative">
+                        <h3 className="text-lg font-semibold text-[#333333] mb-4">
+                            Images and Videos
+                        </h3>
+                        <div className="relative">
+                            {/* Left Arrow */}
+                            <button
+                                onClick={scrollLeft}
+                                className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-[#00a651] text-white p-2 rounded-full hover:bg-[#008c44] focus:outline-none z-10"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                            </button>
+
+                            {/* Carousel Container */}
+                            <div
+                                ref={carouselRef}
+                                className="flex overflow-x-auto space-x-4 pb-4 scrollbar-thin scrollbar-thumb-[#00a651] scrollbar-track-[#e5e5e5] snap-x snap-mandatory"
+                                style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'thin' }}
+                            >
+                                {/* Images */}
+                                {/* <div className="flex-none w-64 snap-center">
+                                    <img
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/gombe_hub_pic1.jpg"
+                                        alt="Gombe Hub Activity 1"
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    />
+                                    <p className="text-sm text-[#333333] mt-2 text-center">A visit by the WIMA team to Gombe Hub</p>
+                                </div> */}
+                                {/* <div className="flex-none w-64 snap-center">
+                                    <img
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/B.jpg"
+                                        alt="Adamawa Hub Activity 2"
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    />
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Community Training Session</p>
+                                </div>
+                                <div className="flex-none w-64 snap-center">
+                                    <img
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/C.jpg"
+                                        alt="Adamawa Hub Activity 3"
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    />
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Solar Dryer Demonstration</p>
+                                </div>
+                                <div className="flex-none w-64 snap-center">
+                                    <img
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/D.jpg"
+                                        alt="Adamawa Hub Activity 4"
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    />
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Women in Agriculture</p>
+                                </div> */}
+
+                                {/* Videos */}
+                                <div className="flex-none w-64 snap-center">
+                                    <video
+                                        controls
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    >
+                                        <source
+                                            src="https://wimanigeria.com/wp-content/uploads/2025/05/hub_video.mp4"
+                                            type="video/mp4"
+                                        />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Kaduna Hub Overview</p>
+                                </div>
+                                <div className="flex-none w-64 snap-center">
+                                    <video
+                                        controls
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    >
+                                        <source
+                                            src="https://wimanigeria.com/wp-content/uploads/2025/05/kaduna_hub_video1.mp4"
+                                            type="video/mp4"
+                                        />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p className="text-sm text-[#333333] mt-2 text-center">A testing session at Kaduna Hub</p>
+                                </div>
+                                <div className="flex-none w-64 snap-center">
+                                    <video
+                                        controls
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    >
+                                        <source
+                                            src="https://wimanigeria.com/wp-content/uploads/2025/05/hub_video_3.mp4"
+                                            type="video/mp4"
+                                        />
+                                        Your browser does not support the video tag.
+                                    </video>
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Training Workshop</p>
+                                </div>
+                            </div>
+
+                            {/* Right Arrow */}
+                            <button
+                                onClick={scrollRight}
+                                className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-[#00a651] text-white p-2 rounded-full hover:bg-[#008c44] focus:outline-none z-10"
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
                     <div className="bg-white rounded-lg shadow-md p-4 sm:p-6">
                         <div className="mb-6">
                             <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
