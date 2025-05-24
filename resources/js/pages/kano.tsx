@@ -258,7 +258,8 @@ export default function DBAs({ msps, memberships, position }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Hubs" />
             <div className="min-h-screen bg-[#f5f5f5] font-sans text-[#333333] dba-wrapper">
-                <header className="bg-[#E8F5E9] py-[15px]">
+                {/* <header className="bg-[#E8F5E9] py-[15px]"> */}
+                <header className="bg-[#E8F5E9] py-[15px] sticky top-0 z-20 shadow-md">
                     <div className="max-w-[1170px] mx-auto px-[15px] flex items-center justify-between">
                         <div className="flex items-center space-x-[15px]">
                             <img
@@ -607,7 +608,10 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                 </svg>
                             </a>
                         </div>
+                        <p className="text-sm">House 2, Block B, Sani Zangon Daura Estate, Kado, Abuja, Nigeria.</p>
+                        <p className="text-sm">Phone: ‪+234-806- 4237 096‬ | Email: info@wimanigeria.com</p>
                         <p className="text-sm">© 2025 WIMA. All rights reserved.</p>
+                  
                     </div>
                 </footer>
 

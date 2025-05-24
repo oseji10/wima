@@ -258,7 +258,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Hubs" />
             <div className="min-h-screen bg-[#f5f5f5] font-sans text-[#333333] dba-wrapper">
-                <header className="bg-[#E8F5E9] py-[15px]">
+                <header className="bg-[#E8F5E9] py-[15px] sticky top-0 z-20 shadow-md">
                     <div className="max-w-[1170px] mx-auto px-[15px] flex items-center justify-between">
                         <div className="flex items-center space-x-[15px]">
                             <img
@@ -313,7 +313,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
                             </ul>
                         </nav>
                         <h2 style={{fontWeight: 'bolder'}}>ADAMAWA HUB</h2>
-
                     </div>
                 </header>
 
@@ -326,7 +325,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
                         </nav>
                     </div>
                 </div>
-
 
                 <main className="max-w-[1170px] mx-auto px-[15px] py-6">
                     {/* Updated Images and Videos Section with Scrollable Carousel */}
@@ -360,30 +358,30 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                     />
                                     <p className="text-sm text-[#333333] mt-2 text-center">A visit by the WIMA team to Adamawa Hub</p>
                                 </div>
-                                {/* <div className="flex-none w-64 snap-center">
+                                <div className="flex-none w-64 snap-center">
                                     <img
-                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/B.jpg"
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/adamawa1.jpg"
                                         alt="Adamawa Hub Activity 2"
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
                                     />
-                                    <p className="text-sm text-[#333333] mt-2 text-center">Community Training Session</p>
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Hub Activity</p>
                                 </div>
                                 <div className="flex-none w-64 snap-center">
                                     <img
-                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/C.jpg"
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/adamawa2.jpg"
                                         alt="Adamawa Hub Activity 3"
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
                                     />
-                                    <p className="text-sm text-[#333333] mt-2 text-center">Solar Dryer Demonstration</p>
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Hub Activity</p>
                                 </div>
                                 <div className="flex-none w-64 snap-center">
                                     <img
-                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/D.jpg"
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/adamawa3.jpg"
                                         alt="Adamawa Hub Activity 4"
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
                                     />
-                                    <p className="text-sm text-[#333333] mt-2 text-center">Women in Agriculture</p>
-                                </div> */}
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Hub Activity</p>
+                                </div>
 
                                 {/* Videos */}
                                 <div className="flex-none w-64 snap-center">
@@ -579,8 +577,6 @@ export default function DBAs({ msps, memberships, position }: Props) {
                             </div>
                         </div>
                     </div>
-
-                    
                 </main>
 
                 <footer className="bg-[#1A3C34] text-white py-4">
@@ -607,6 +603,11 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                 </svg>
                             </a>
                         </div>
+                        
+
+
+                        <p className="text-sm">House 2, Block B, Sani Zangon Daura Estate, Kado, Abuja, Nigeria.</p>
+                        <p className="text-sm">Phone: ‪+234-806- 4237 096‬ | Email: info@wimanigeria.com</p>
                         <p className="text-sm">© 2025 WIMA. All rights reserved.</p>
                     </div>
                 </footer>
