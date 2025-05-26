@@ -174,17 +174,15 @@ export default function DBAs({ msps, memberships, position }: Props) {
 
     const handleRequestSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        // Update requestData with the transformed service value
+        setRequestData('service', requestData.service.join(','));
         postRequest('/request-service', {
-            data: {
-                ...requestData,
-                service: requestData.service.join(','), // Send as comma-separated string
-            },
             onSuccess: () => {
                 setIsRequestModalOpen(false);
                 resetRequest();
                 setRequestState('');
                 alert('Service request submitted successfully!');
-            }
+            },
         });
     };
 
@@ -353,41 +351,41 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                 style={{ scrollSnapType: 'x mandatory', scrollbarWidth: 'thin' }}
                             >
                                 {/* Images */}
-                                {/* <div className="flex-none w-64 snap-center">
+                                <div className="flex-none w-64 snap-center">
                                     <img
-                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/gombe_hub_pic1.jpg"
-                                        alt="Gombe Hub Activity 1"
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/06/kaduna1.jpg"
+                                        alt="Kaduna Hub Activity 1"
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
                                     />
-                                    <p className="text-sm text-[#333333] mt-2 text-center">A visit by the WIMA team to Gombe Hub</p>
-                                </div> */}
-                                {/* <div className="flex-none w-64 snap-center">
-                                    <img
-                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/B.jpg"
-                                        alt="Adamawa Hub Activity 2"
-                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
-                                    />
-                                    <p className="text-sm text-[#333333] mt-2 text-center">Community Training Session</p>
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Hub Activity</p>
                                 </div>
                                 <div className="flex-none w-64 snap-center">
                                     <img
-                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/C.jpg"
-                                        alt="Adamawa Hub Activity 3"
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/06/kaduna2.jpg"
+                                        alt="Kaduna Hub Activity 2"
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
                                     />
-                                    <p className="text-sm text-[#333333] mt-2 text-center">Solar Dryer Demonstration</p>
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Hub Activity</p>
                                 </div>
                                 <div className="flex-none w-64 snap-center">
                                     <img
-                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/D.jpg"
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/06/kaduna3.jpg"
+                                        alt="Kaduna Hub Activity 3"
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    />
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Hub Activity</p>
+                                </div>
+                                <div className="flex-none w-64 snap-center">
+                                    <img
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/06/kaduna4.jpg"
                                         alt="Adamawa Hub Activity 4"
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
                                     />
-                                    <p className="text-sm text-[#333333] mt-2 text-center">Women in Agriculture</p>
-                                </div> */}
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Hub Activity</p>
+                                </div>
 
                                 {/* Videos */}
-                                <div className="flex-none w-64 snap-center">
+                                {/* <div className="flex-none w-64 snap-center">
                                     <video
                                         controls
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
@@ -399,7 +397,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         Your browser does not support the video tag.
                                     </video>
                                     <p className="text-sm text-[#333333] mt-2 text-center">Kaduna Hub Overview</p>
-                                </div>
+                                </div> */}
                                 <div className="flex-none w-64 snap-center">
                                     <video
                                         controls
@@ -413,7 +411,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                     </video>
                                     <p className="text-sm text-[#333333] mt-2 text-center">A testing session at Kaduna Hub</p>
                                 </div>
-                                <div className="flex-none w-64 snap-center">
+                                {/* <div className="flex-none w-64 snap-center">
                                     <video
                                         controls
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
@@ -425,7 +423,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         Your browser does not support the video tag.
                                     </video>
                                     <p className="text-sm text-[#333333] mt-2 text-center">Training Workshop</p>
-                                </div>
+                                </div> */}
                             </div>
 
                             {/* Right Arrow */}

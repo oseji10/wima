@@ -174,17 +174,15 @@ export default function DBAs({ msps, memberships, position }: Props) {
 
     const handleRequestSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        // Update requestData with the transformed service value
+        setRequestData('service', requestData.service.join(','));
         postRequest('/request-service', {
-            data: {
-                ...requestData,
-                service: requestData.service.join(','), // Send as comma-separated string
-            },
             onSuccess: () => {
                 setIsRequestModalOpen(false);
                 resetRequest();
                 setRequestState('');
                 alert('Service request submitted successfully!');
-            }
+            },
         });
     };
 
@@ -389,6 +387,15 @@ export default function DBAs({ msps, memberships, position }: Props) {
 
                                 <div className="flex-none w-64 snap-center">
                                     <img
+                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/gombe4.jpg"
+                                        alt="Gombe Hub Activity 3"
+                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
+                                    />
+                                    <p className="text-sm text-[#333333] mt-2 text-center">Hub Activity</p>
+                                </div>
+
+                                <div className="flex-none w-64 snap-center">
+                                    <img
                                         src="https://wimanigeria.com/wp-content/uploads/2025/05/gombe5.jpg"
                                         alt="Gombe Hub Activity 3"
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
@@ -404,18 +411,9 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                     />
                                     <p className="text-sm text-[#333333] mt-2 text-center">Hub Activity</p>
                                 </div>
-
                                 <div className="flex-none w-64 snap-center">
                                     <img
                                         src="https://wimanigeria.com/wp-content/uploads/2025/05/gombe7.jpg"
-                                        alt="Gombe Hub Activity 3"
-                                        className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
-                                    />
-                                    <p className="text-sm text-[#333333] mt-2 text-center">Hub Activity</p>
-                                </div>
-                                <div className="flex-none w-64 snap-center">
-                                    <img
-                                        src="https://wimanigeria.com/wp-content/uploads/2025/05/gombe8.jpg"
                                         alt="Gombe Hub Activity 3"
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
                                     />
@@ -454,7 +452,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                     </video>
                                     <p className="text-sm text-[#333333] mt-2 text-center">Gombe Hub Overview</p>
                                 </div>
-                                <div className="flex-none w-64 snap-center">
+                                {/* <div className="flex-none w-64 snap-center">
                                     <video
                                         controls
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
@@ -466,8 +464,8 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         Your browser does not support the video tag.
                                     </video>
                                     <p className="text-sm text-[#333333] mt-2 text-center">Solar Water Pump Demo</p>
-                                </div>
-                                <div className="flex-none w-64 snap-center">
+                                </div> */}
+                                {/* <div className="flex-none w-64 snap-center">
                                     <video
                                         controls
                                         className="w-full h-48 object-cover rounded-md border border-[#e5e5e5]"
@@ -479,7 +477,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         Your browser does not support the video tag.
                                     </video>
                                     <p className="text-sm text-[#333333] mt-2 text-center">Training Workshop</p>
-                                </div>
+                                </div> */}
                             </div>
 
                             {/* Right Arrow */}
