@@ -509,7 +509,7 @@ export default function DBAs({ msps, memberships, position }: Props) {
 
                         <div className="border border-[#e5e5e5] rounded-md">
                             <div className="p-4 sm:p-6">
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-4">
                                     {paginatedMsps.map((org) => (
                                         <div
                                             key={org.id}
@@ -517,25 +517,24 @@ export default function DBAs({ msps, memberships, position }: Props) {
                                         >
                                             <div className="flex flex-col gap-3">
                                                 <div className="flex justify-center">
-                                                    <svg className="w-12 h-12 text-[#333333] opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                                                    {/* <svg className="w-12 h-12 text-[#333333] opacity-50" fill="currentColor" viewBox="0 0 24 24">
+                                                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                                                    </svg> */}
+                                                </div>
+                                                <div>
+                                                <svg className="w-12 h-12 text-[#333333] opacity-50" fill="currentColor" viewBox="0 0 24 24">
                                                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                                                     </svg>
+                                                    <p className="text-base text-[#333333] truncate" >MSP ID: {org.mspId} {org.mspName} {org.communityName}, {org.lga.lgaName} - {org.state.stateName} * {org.position.positionName}</p>
+                                                    
+                                                    <p className="text-base text-[#333333] truncate"></p>
+                                                
+                                                    
+                                                    {/* <p className="text-base text-[#333333] truncate" style={{ textTransform: 'uppercase' }}>{org.mspName}</p> */}
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm font-medium text-[#333333] opacity-70">MSP ID</p>
-                                                    <p className="text-base text-[#333333] truncate">{org.mspId}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-[#333333] opacity-70">Name</p>
-                                                    <p className="text-base text-[#333333] truncate" style={{ textTransform: 'uppercase' }}>{org.mspName}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-[#333333] opacity-70">Location</p>
-                                                    <p className="text-base text-[#333333] truncate" style={{ textTransform: 'uppercase' }}>{org.communityName}, {org.lga.lgaName} - {org.state.stateName}</p>
-                                                </div>
-                                                <div>
-                                                    <p className="text-sm font-medium text-[#333333] opacity-70">Specialization</p>
-                                                    <p className="text-base text-[#333333] truncate" style={{ textTransform: 'uppercase' }}>{org.position.positionName}</p>
+                                                    {/* <p className="text-sm font-medium text-[#333333] opacity-70">Specialization</p> */}
+                                                    {/* <p className="text-base text-[#333333] truncate" style={{ textTransform: 'uppercase' }}>{org.position.positionName}</p> */}
                                                 </div>
                                             </div>
                                         </div>

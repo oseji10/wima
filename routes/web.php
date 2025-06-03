@@ -73,6 +73,11 @@ Route::get('/gombe', [MSPController::class, 'gombe'])->name('msps.gombe');
 Route::get('/kaduna', [MSPController::class, 'kaduna'])->name('msps.kaduna');
 Route::get('/kano', [MSPController::class, 'kano'])->name('msps.kano');
 
+Route::get('/hubs', [HISController::class, 'hubs']);
+Route::get('/analytics', [HISController::class, 'analytics']);
+
+
+
 Route::get('/members', [MSPController::class, 'members'])->name('members.index');
 Route::post('/request-service', [ServiceRequestController::class, 'store'])->name('request-service.store');
 

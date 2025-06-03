@@ -1,5 +1,5 @@
 @import 'tailwindcss';
-
+@import 'leaflet/dist/leaflet.css';
 @plugin 'tailwindcss-animate';
 
 @source '../views';
@@ -157,3 +157,4 @@
         @apply bg-background text-foreground;
     }
 }
+
