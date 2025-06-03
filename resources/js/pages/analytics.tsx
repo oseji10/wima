@@ -5083,6 +5083,7 @@ const SalesDashboard: React.FC = () => {
       {/* Charts */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-6">
         {/* Bar Chart: Units Sold by Product */}
+        {/* Simple Bar Chart: Units Sold by Product */}
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <h2 className="text-lg font-semibold mb-4 text-[#00a651]">Units Sold by Product</h2>
           <ResponsiveContainer width="100%" height={300}>
@@ -5092,17 +5093,11 @@ const SalesDashboard: React.FC = () => {
               <YAxis tickFormatter={formatNumber} fontSize={12} />
               <Tooltip formatter={(value: number) => formatNumber(value)} />
               <Legend />
-              {aggregateByProduct().map((entry, index) => (
-                <Bar
-                  key={entry.product}
-                  dataKey="units"
-                  fill={COLORS[index % COLORS.length]}
-                  name={entry.product}
-                />
-              ))}
+              <Bar dataKey="units" fill="#00a651" />
             </BarChart>
           </ResponsiveContainer>
         </div>
+
 
         {/* Line Chart: Revenue Over Time */}
         <div className="bg-white p-4 rounded-lg shadow-sm">
