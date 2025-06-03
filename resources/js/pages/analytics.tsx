@@ -5008,7 +5008,7 @@ const SalesDashboard: React.FC = () => {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
-      <h1 className="text-3xl font-bold mb-6 text-[#00a651]">Sales Analytics Dashboard</h1>
+      <h1 className="text-3xl font-bold mb-6 text-[#00a651]">WIMA Sales Analytics Dashboard</h1>
 
       {/* Filters */}
       <div className="mb-6 flex flex-wrap gap-4 items-end">
